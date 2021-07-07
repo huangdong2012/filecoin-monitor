@@ -4,13 +4,18 @@ import (
 	"contrib.go.opencensus.io/exporter/prometheus"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"grandhelmsman/filecoin-monitor/metric/metrics"
+	"grandhelmsman/filecoin-monitor/model"
 	"net/http"
 	"testing"
 	"time"
 )
 
-const(
-	rabbit = "amqp://root:root@localhost/"
+var (
+	opt = &model.BaseOptions{
+		Role:  model.RoleLotus,
+		Node:  "t01000",
+		MQUrl: "amqp://root:root@localhost/",
+	}
 )
 
 func setupMetric() http.Handler {
@@ -29,15 +34,15 @@ func setupMetric() http.Handler {
 //1.prometheus收集的方式
 func TestMetric1(t *testing.T) {
 	handler := setupMetric()
-	Init(rabbit, &Options{
-		Exchange:     "zdz.exchange.metric",
-		RouteKey:     "*",
+	Init(opt, &model.MetricOptions{
+		Exchange: "zdz.exchange.metric",
+		RouteKey: "*",
 	})
 
 	go func() {
 		for range time.Tick(time.Second * 10) {
-			metrics.Lotus.Test("label1", "label2", "label3").Inc()
-			metrics.Lotus.Test2("label1", "label2", "label3").Set(float64(time.Now().Unix()))
+			metrics.Lotus.Test().Inc()
+			metrics.Lotus.Test2().Set(float64(time.Now().Unix()))
 		}
 	}()
 
@@ -50,17 +55,17 @@ func TestMetric1(t *testing.T) {
 
 //2.主动push到push gateway的方式
 func TestMetric2(t *testing.T) {
-	Init(rabbit, &Options{
-		Exchange:     "zdz.exchange.metric",
-		RouteKey:     "*",
+	Init(opt, &model.MetricOptions{
+		Exchange: "zdz.exchange.metric",
+		RouteKey: "*",
 
 		PushUrl:      "http://localhost:9091",
 		PushJob:      "test-job",
 		PushInterval: time.Second * 10,
 	})
 
-	metrics.Lotus.Test("label1", "label2", "label3").Inc()
-	metrics.Lotus.Test2("label1", "label2", "label3").Set(float64(time.Now().Unix()))
+	metrics.Lotus.Test().Inc()
+	metrics.Lotus.Test2().Set(float64(time.Now().Unix()))
 	Push()
 
 	time.Sleep(time.Second * 10)

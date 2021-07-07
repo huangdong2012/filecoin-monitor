@@ -12,6 +12,6 @@ var (
 type workerSpan struct {
 }
 
-func (s *workerSpan) test(ctx context.Context) (context.Context, *trace.Span) {
+func (s *workerSpan) Test(ctx context.Context) (context.Context, *trace.Span) {
 	return setupSpan(ctx, "/test")
 }

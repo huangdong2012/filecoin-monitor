@@ -2,6 +2,8 @@ package trace
 
 import (
 	"context"
+	"grandhelmsman/filecoin-monitor/model"
+
 	"contrib.go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/trace"
 
@@ -10,8 +12,15 @@ import (
 )
 
 const (
-	service  = "test-srv"
 	setupKey = "zdz"
+)
+
+var (
+	opt = &model.BaseOptions{
+		Role:  model.RoleMiner,
+		Node:  "t01000",
+		MQUrl: "amqp://root:root@localhost/",
+	}
 )
 
 func setupTrace() {
@@ -22,7 +31,7 @@ func setupTrace() {
 
 	je, err := jaeger.NewExporter(jaeger.Options{
 		AgentEndpoint: agentEndpointURI,
-		ServiceName:   service,
+		ServiceName:   string(opt.Role),
 	})
 	if err != nil {
 		panic(err)
@@ -36,10 +45,9 @@ func setupTrace() {
 
 func TestTrace(t *testing.T) {
 	setupTrace()
-	Init("amqp://root:root@localhost/", &Options{
+	Init(opt, &model.TraceOptions{
 		Exchange: "zdz.exchange.trace",
 		RouteKey: "*",
-		Service:  service,
 	})
 
 	ctx, span := trace.StartSpan(context.Background(), "/root")

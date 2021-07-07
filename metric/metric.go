@@ -2,6 +2,8 @@ package metric
 
 import (
 	dto "github.com/prometheus/client_model/go"
+	"grandhelmsman/filecoin-monitor/metric/metrics"
+	"grandhelmsman/filecoin-monitor/model"
 	"time"
 )
 
@@ -10,20 +12,23 @@ const (
 )
 
 var (
-	options *Options
+	base    *model.BaseOptions
+	options *model.MetricOptions
 )
 
-func Init(mq string, opt *Options) {
-	if len(opt.Exchange) == 0 || len(opt.RouteKey) == 0 {
+func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
+	if len(metricOpt.Exchange) == 0 || len(metricOpt.RouteKey) == 0 {
 		panic("trace exchange or route-key invalid")
 	}
-	if opt.PushInterval < defaultInterval {
-		opt.PushInterval = defaultInterval
+	if metricOpt.PushInterval < defaultInterval {
+		metricOpt.PushInterval = defaultInterval
 	}
 	{
-		options = opt
+		base = baseOpt
+		options = metricOpt
 		gatherHandler = exp.export
-		initRabbit(mq)
+		initRabbit()
+		metrics.Init(baseOpt)
 	}
 
 	//默认启用push-gateway主动上报的方式,如果配置了gather(prometheus主动收集)则停止主动上报
@@ -34,14 +39,14 @@ func Push() {
 	exp.push()
 }
 
-func parseMetrics(mf *dto.MetricFamily) []*Metric {
+func parseMetrics(mf *dto.MetricFamily) []*model.Metric {
 	if mf == nil {
 		return nil
 	}
 
-	out := make([]*Metric, 0, 0)
+	out := make([]*model.Metric, 0, 0)
 	for _, m := range mf.Metric {
-		item := &Metric{
+		item := &model.Metric{
 			Name:   *mf.Name,
 			Desc:   *mf.Help,
 			Labels: parseLabels(m.Label),

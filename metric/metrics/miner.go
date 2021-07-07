@@ -1,34 +1,30 @@
 package metrics
 
 import (
-	"grandhelmsman/filecoin-monitor/utils"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
+	"grandhelmsman/filecoin-monitor/model"
 )
 
 const (
-	minerSys = "miner"
+	prefixMiner = string(model.RoleMiner)
 )
 
 var (
 	Miner = &minerMetrics{
-		test: promauto.With(Registry).NewCounterVec(prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: minerSys,
-			Name:      "test",
-		}, []string{
-			instance,
-			"label1",
-			"label2",
-			"label3",
-		}),
+		blockCount:     SetupCounterVec(naming(prefixMiner, "block_count")),
+		nullRoundCount: SetupCounterVec(naming(prefixMiner, "null_round_count")),
 	}
 )
 
 type minerMetrics struct {
-	test *prometheus.CounterVec
+	blockCount     *prometheus.CounterVec
+	nullRoundCount *prometheus.CounterVec
 }
 
-func (m *minerMetrics) Test(label1, label2, label3 string) prometheus.Counter {
-	return m.test.WithLabelValues(utils.IpAddr(), label1, label2, label3)
+func (m *minerMetrics) BlockCount() prometheus.Counter {
+	return m.blockCount.WithLabelValues()
+}
+
+func (m *minerMetrics) NullRoundCount() prometheus.Counter {
+	return m.nullRoundCount.WithLabelValues()
 }

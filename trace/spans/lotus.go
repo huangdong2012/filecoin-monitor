@@ -12,6 +12,10 @@ var (
 type lotusSpan struct {
 }
 
-func (s *lotusSpan) test(ctx context.Context) (context.Context, *trace.Span) {
+func (s *lotusSpan) Test(ctx context.Context) (context.Context, *trace.Span) {
 	return setupSpan(ctx, "/test")
+}
+
+func (s *lotusSpan) SyncSubmitBlock(ctx context.Context) (context.Context, *trace.Span) {
+	return setupSpan(ctx, "/syncSubmitBlock")
 }

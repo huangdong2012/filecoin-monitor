@@ -12,6 +12,6 @@ var (
 type storageSpan struct {
 }
 
-func (s *storageSpan) test(ctx context.Context) (context.Context, *trace.Span) {
+func (s *storageSpan) Test(ctx context.Context) (context.Context, *trace.Span) {
 	return setupSpan(ctx, "/test")
 }

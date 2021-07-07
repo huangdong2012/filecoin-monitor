@@ -1,27 +1,17 @@
 package metrics
 
 import (
-	"grandhelmsman/filecoin-monitor/utils"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
+	"grandhelmsman/filecoin-monitor/model"
 )
 
 const (
-	workerSys = "worker"
+	prefixWorker = string(model.RoleWorker)
 )
 
 var (
 	Worker = &workerMetrics{
-		test: promauto.With(Registry).NewCounterVec(prometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: workerSys,
-			Name:      "test",
-		}, []string{
-			instance,
-			"label1",
-			"label2",
-			"label3",
-		}),
+		test: SetupCounterVec(naming(prefixWorker, "test")),
 	}
 )
 
@@ -29,6 +19,6 @@ type workerMetrics struct {
 	test *prometheus.CounterVec
 }
 
-func (m *workerMetrics) Test(label1, label2, label3 string) prometheus.Counter {
-	return m.test.WithLabelValues(utils.IpAddr(), label1, label2, label3)
+func (m *workerMetrics) Test() prometheus.Counter {
+	return m.test.WithLabelValues()
 }

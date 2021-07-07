@@ -12,6 +12,14 @@ var (
 type minerSpan struct {
 }
 
-func (s *minerSpan) test(ctx context.Context) (context.Context, *trace.Span) {
+func (s *minerSpan) Test(ctx context.Context) (context.Context, *trace.Span) {
 	return setupSpan(ctx, "/test")
+}
+
+func (s *minerSpan) MineLoop(ctx context.Context) (context.Context, *trace.Span) {
+	return setupSpan(ctx, "/mineLoop")
+}
+
+func (s *minerSpan) MineOne(ctx context.Context) (context.Context, *trace.Span) {
+	return setupSpan(ctx, "/mineOne")
 }

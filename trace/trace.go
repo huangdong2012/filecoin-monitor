@@ -4,20 +4,25 @@ import (
 	"errors"
 	"fmt"
 	"go.opencensus.io/trace"
+	"grandhelmsman/filecoin-monitor/model"
+	"grandhelmsman/filecoin-monitor/trace/spans"
 )
 
 var (
-	options *Options
+	base    *model.BaseOptions
+	options *model.TraceOptions
 )
 
-func Init(mq string, opt *Options) {
-	if len(opt.Exchange) == 0 || len(opt.RouteKey) == 0 {
+func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
+	if len(traceOpt.Exchange) == 0 || len(traceOpt.RouteKey) == 0 {
 		panic("trace exchange or route-key invalid")
 	}
 
 	{
-		options = opt
-		initRabbit(mq)
+		base = baseOpt
+		options = traceOpt
+		initRabbit()
+		spans.Init(baseOpt)
 	}
 
 	trace.RegisterExporter(newExporter())
@@ -26,16 +31,16 @@ func Init(mq string, opt *Options) {
 	})
 }
 
-func parseSpan(sd *trace.SpanData) (*Span, error) {
+func parseSpan(sd *trace.SpanData) (*model.Span, error) {
 	if sd == nil {
 		return nil, errors.New("trace SpanData invalid")
 	}
 
-	span := &Span{
+	span := &model.Span{
 		ID:        sd.SpanID.String(),
 		ParentID:  sd.ParentSpanID.String(),
 		TraceID:   sd.TraceID.String(),
-		Service:   "todo...",
+		Service:   string(base.Role),
 		Operation: sd.Name,
 		Tags:      make(map[string]string),
 		Logs:      make(map[string]string),

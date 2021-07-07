@@ -1,11 +1,4 @@
-package trace
-
-type Options struct {
-	Exchange string
-	RouteKey string
-
-	Service string
-}
+package model
 
 type Span struct {
 	ID        string
@@ -15,8 +8,9 @@ type Span struct {
 	Operation string
 	Tags      map[string]string
 	Logs      map[string]string
-	Duration  int64
 	Status    int32
+	Duration  int64
 	StartTime int64
 	EndTime   int64
 }
+
