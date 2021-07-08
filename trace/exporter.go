@@ -3,9 +3,9 @@ package trace
 import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/metric"
-	"grandhelmsman/filecoin-monitor/metric/metrics"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace/spans"
 	"grandhelmsman/filecoin-monitor/utils"
@@ -15,6 +15,7 @@ import (
 
 func newExporter() *Exporter {
 	return &Exporter{
+		registry:        prometheus.NewRegistry(),
 		metricFlag:      "metric",
 		metrics:         &sync.Map{},
 		metricSpanID:    "span_id",
@@ -25,6 +26,7 @@ func newExporter() *Exporter {
 }
 
 type Exporter struct {
+	registry        *prometheus.Registry
 	metricFlag      string
 	metrics         *sync.Map
 	metricSpanID    string
@@ -76,14 +78,14 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 	labelValues := map[string]string{
 		e.metricSpanID:    span.ID,
 		e.metricStatus:    fmt.Sprintf("%v", span.Status),
-		e.metricStartTime: utils.TimeFormat(time.Unix(span.StartTime,0)),
-		e.metricEndTime:   utils.TimeFormat(time.Unix(span.EndTime,0)),
+		e.metricStartTime: utils.TimeFormat(time.Unix(span.StartTime, 0)),
+		e.metricEndTime:   utils.TimeFormat(time.Unix(span.EndTime, 0)),
 	}
 	for k, v := range span.Tags {
 		labelValues[k] = v
 	}
 	gauge.With(labelValues).Set(span.Duration)
-	metric.Push()
+	metric.NewScope().Add(gauge).Push()
 
 	return nil
 }
@@ -102,7 +104,19 @@ func (e *Exporter) getMetric(name string, labels []string) *prometheus.GaugeVec 
 		}
 	}
 
-	gauge = metrics.SetupGaugeVec(gaugeName, gaugeLbs...)
+	gauge = e.SetupGaugeVec(gaugeName, gaugeLbs...)
 	e.metrics.Store(name, gauge)
 	return gauge
+}
+
+func (e *Exporter) SetupGaugeVec(name string, labels ...string) *prometheus.GaugeVec {
+	return promauto.With(e.registry).NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "zdz",
+		Name:      name,
+		Help:      "from span",
+		ConstLabels: map[string]string{
+			"instance": utils.IpAddr(),
+			"node":     model.GetBaseOptions().Node,
+		},
+	}, labels)
 }

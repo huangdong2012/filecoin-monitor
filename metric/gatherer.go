@@ -1,32 +1,29 @@
 package metric
 
 import (
-	"grandhelmsman/filecoin-monitor/metric/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 )
 
-type GatherHandler func(ms []*dto.MetricFamily)
-
 var (
-	gatherHandler GatherHandler = nil
+	wrapperGather = &WrapperGatherer{
+		inner: prometheus.NewRegistry(),
+	}
 )
 
 func InitGatherer(reg *prometheus.Registry) prometheus.Gatherer {
-	gather := &WrapperGatherer{outer: reg}
-	if gather.outer == nil {
-		gather.outer = prometheus.DefaultRegisterer.(*prometheus.Registry)
+	if wrapperGather.outer = reg; wrapperGather.outer == nil {
+		wrapperGather.outer = prometheus.DefaultRegisterer.(*prometheus.Registry)
 	}
 	{
-		//如果使用prometheus主动收集,就停止使用push-gateway上报了
-		exp.stop()
+		exp.stop() //如果使用prometheus主动收集,就停止使用push-gateway上报了
 	}
-
-	return gather
+	return wrapperGather
 }
 
 type WrapperGatherer struct {
-	outer *prometheus.Registry
+	inner *prometheus.Registry //自定义指标的注册中心
+	outer *prometheus.Registry //系统默认(open-census)指标的注册中心
 }
 
 func (g *WrapperGatherer) Gather() ([]*dto.MetricFamily, error) {
@@ -36,19 +33,20 @@ func (g *WrapperGatherer) Gather() ([]*dto.MetricFamily, error) {
 		msOuter []*dto.MetricFamily
 		out     = make([]*dto.MetricFamily, 0, 0)
 	)
-	if msInner, err = metrics.InnerMetrics(); err != nil {
-		return nil, err
+	if g.inner != nil {
+		if msInner, err = g.inner.Gather(); err != nil {
+			return nil, err
+		}
+		out = append(out, msInner...)
 	}
-	out = append(out, msInner...)
 	if g.outer != nil {
 		if msOuter, err = g.outer.Gather(); err != nil {
 			return nil, err
 		}
 		out = append(out, msOuter...)
 	}
-	if gatherHandler != nil { //prometheus主动收集的时候，同时上报msInner到mq
-		gatherHandler(msInner)
+	if err = exp.export(g.inner); err != nil { //prometheus收集的时候，同时将自定义指标上传到mq
+		return nil, err
 	}
-
 	return out, nil
 }

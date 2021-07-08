@@ -25,9 +25,8 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 	{
 		model.SetBaseOptions(baseOpt)
 		options = metricOpt
-		gatherHandler = exp.export
+		metrics.Init(wrapperGather.inner)
 		initRabbit()
-		metrics.Init()
 	}
 
 	//默认启用push-gateway主动上报的方式,如果配置了gather(prometheus主动收集)则停止主动上报
@@ -35,7 +34,13 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 }
 
 func Push() {
-	exp.push()
+	exp.pushAll()
+}
+
+func PushScope(s *Scope) {
+	if s != nil {
+		s.Push()
+	}
 }
 
 func parseMetrics(mf *dto.MetricFamily) []*model.Metric {

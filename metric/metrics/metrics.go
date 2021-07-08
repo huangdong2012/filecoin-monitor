@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	dto "github.com/prometheus/client_model/go"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/utils"
 )
@@ -16,22 +15,17 @@ const (
 )
 
 var (
-	registry = prometheus.NewRegistry() //for zdz metrics to mq
+	registry *prometheus.Registry //for zdz metrics to mq
 )
 
-func Init() {
-	Lotus.init()
-	Miner.init()
-	Storage.init()
-	Worker.init()
-}
-
-func Registry() *prometheus.Registry {
-	return registry
-}
-
-func InnerMetrics() ([]*dto.MetricFamily, error) {
-	return registry.Gather()
+func Init(reg *prometheus.Registry) {
+	registry = reg
+	{
+		Lotus.init()
+		Miner.init()
+		Storage.init()
+		Worker.init()
+	}
 }
 
 func naming(prefix, name string) string {

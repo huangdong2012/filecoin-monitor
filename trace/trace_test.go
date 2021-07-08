@@ -60,7 +60,7 @@ func TestTrace(t *testing.T) {
 		PushInterval: time.Second * 10,
 	})
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		ctx, span := trace.StartSpan(context.Background(), "/root")
 		span.AddAttributes(trace.BoolAttribute(setupKey, true))
 		span.AddAttributes(trace.StringAttribute("name", "aaa"))
@@ -85,5 +85,5 @@ func TestTrace(t *testing.T) {
 		span.End()
 	}
 
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 60)
 }

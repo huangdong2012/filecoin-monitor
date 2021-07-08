@@ -2,8 +2,8 @@ package metric
 
 import (
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
-	"grandhelmsman/filecoin-monitor/metric/metrics"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/utils"
 	"time"
@@ -13,35 +13,55 @@ import (
 
 var (
 	exp = &exporter{
-		exitC: make(chan bool),
-		pushC: make(chan bool),
+		exitC:     make(chan bool),
+		pushC:     make(chan bool),
+		pushColsC: make(chan []prometheus.Collector),
 	}
 )
 
 type exporter struct {
-	exitC chan bool
-	pushC chan bool
+	exitC     chan bool
+	pushC     chan bool
+	pushColsC chan []prometheus.Collector
 }
 
 func (e *exporter) start() {
 	for {
+		var (
+			err          error
+			cols         []prometheus.Collector
+			gatherToMQ   prometheus.Gatherer = wrapperGather.inner
+			gatherToProm prometheus.Gatherer = wrapperGather
+		)
 		select {
+		case <-e.pushC: //push all
+		case <-time.After(options.PushInterval): //push all
+		case cols = <-e.pushColsC: //push cols
 		case <-e.exitC:
 			utils.Info("metrics exporter exit loop")
 			return
-		case <-e.pushC:
-		case <-time.After(options.PushInterval):
 		}
 
-		//send to push-gateway
-		if err := push.New(options.PushUrl, options.PushJob).Gatherer(metrics.Registry()).Push(); err != nil {
-			utils.Error(fmt.Errorf("metrics exporter push error:%v", err.Error()))
+		if len(cols) > 0 {
+			reg := prometheus.NewRegistry()
+			for _, c := range cols {
+				if err = reg.Register(c); err != nil {
+					utils.Error(fmt.Errorf("metrics exporter register error:%v", err.Error()))
+				}
+			}
+			gatherToMQ = reg
+			gatherToProm = reg
 		}
 
-		if ms, err := metrics.InnerMetrics(); err != nil {
+		//send to mq
+		if err := e.export(gatherToMQ); err != nil {
 			utils.Error(fmt.Errorf("metrics exporter gather inner metrics error: %v", err.Error()))
-		} else {
-			e.export(ms) //send to mq
+		}
+		//send to push-gateway
+		if len(options.PushUrl) > 0 {
+			if err := push.New(options.PushUrl, options.PushJob).Gatherer(gatherToProm).Push(); err != nil {
+				utils.Error(fmt.Errorf("metrics exporter push error:%v", err.Error()))
+			}
 		}
 	}
 }
@@ -54,31 +74,44 @@ func (e *exporter) stop() {
 	}
 }
 
-func (e *exporter) push() {
+func (e *exporter) pushAll() {
 	select {
 	case e.pushC <- true:
 	case <-time.After(time.Millisecond * 200):
 	}
 }
 
+func (e *exporter) pushCollectors(cols ...prometheus.Collector) {
+	if len(cols) > 0 {
+		select {
+		case e.pushColsC <- cols:
+		case <-time.After(time.Millisecond * 200):
+		}
+	}
+}
+
 //send to mq
-func (e *exporter) export(ms []*dto.MetricFamily) {
+func (e *exporter) export(gather prometheus.Gatherer) error {
 	var (
-		err  error
-		data string
+		err error
+		ms  []*dto.MetricFamily
+
+		body string
 		out  = make([]*model.Metric, 0, 0)
 	)
+	if ms, err = gather.Gather(); err != nil {
+		return err
+	}
 	for _, mf := range ms {
 		if items := parseMetrics(mf); len(items) > 0 {
 			out = append(out, items...)
 		}
 	}
-	if data, err = utils.ToJson(out); err != nil {
-		utils.Error(fmt.Errorf("marshal metrics to json error: %v", err))
-		return
+	if body, err = utils.ToJson(out); err != nil {
+		return err
 	}
-
-	if err = sendToRabbit([]byte(data)); err != nil {
-		utils.Error(fmt.Errorf("metric exporter send to mq error: %v", err.Error()))
+	if err = sendToRabbit([]byte(body)); err != nil {
+		return err
 	}
+	return nil
 }
