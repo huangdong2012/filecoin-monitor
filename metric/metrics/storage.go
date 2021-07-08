@@ -10,13 +10,15 @@ const (
 )
 
 var (
-	Storage = &storageMetrics{
-		test: SetupCounterVec(naming(prefixStorage, "test")),
-	}
+	Storage = &storageMetrics{}
 )
 
 type storageMetrics struct {
 	test *prometheus.CounterVec
+}
+
+func (m *storageMetrics) init() {
+	m.test = SetupCounterVec(naming(prefixStorage, "test"))
 }
 
 func (m *storageMetrics) Test() prometheus.Counter {

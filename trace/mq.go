@@ -3,6 +3,7 @@ package trace
 import (
 	"github.com/assembla/cony"
 	"github.com/streadway/amqp"
+	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/utils"
 )
 
@@ -11,7 +12,7 @@ var (
 )
 
 func initRabbit() {
-	rabbitPub = utils.GetRabbitPublisher(base.MQUrl, options.Exchange, options.RouteKey)
+	rabbitPub = utils.GetRabbitPublisher(model.GetBaseOptions().MQUrl, options.Exchange, options.RouteKey)
 }
 
 func sendToRabbit(data []byte) error {

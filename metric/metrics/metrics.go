@@ -16,12 +16,14 @@ const (
 )
 
 var (
-	base     *model.BaseOptions
 	registry = prometheus.NewRegistry() //for zdz metrics to mq
 )
 
-func Init(baseOpt *model.BaseOptions) {
-	base = baseOpt
+func Init() {
+	Lotus.init()
+	Miner.init()
+	Storage.init()
+	Worker.init()
 }
 
 func Registry() *prometheus.Registry {
@@ -42,7 +44,7 @@ func SetupCounterVec(name string, labels ...string) *prometheus.CounterVec {
 		Name:      name,
 		ConstLabels: map[string]string{
 			instance: utils.IpAddr(),
-			node:     base.Node,
+			node:     model.GetBaseOptions().Node,
 		},
 	}, labels)
 }
@@ -53,7 +55,7 @@ func SetupGaugeVec(name string, labels ...string) *prometheus.GaugeVec {
 		Name:      name,
 		ConstLabels: map[string]string{
 			instance: utils.IpAddr(),
-			node:     base.Node,
+			node:     model.GetBaseOptions().Node,
 		},
 	}, labels)
 }

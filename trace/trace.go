@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/model"
-	"grandhelmsman/filecoin-monitor/trace/spans"
 )
 
 var (
-	base    *model.BaseOptions
 	options *model.TraceOptions
 )
 
@@ -19,10 +17,9 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	}
 
 	{
-		base = baseOpt
+		model.SetBaseOptions(baseOpt)
 		options = traceOpt
 		initRabbit()
-		spans.Init(baseOpt)
 	}
 
 	trace.RegisterExporter(newExporter())
@@ -40,11 +37,11 @@ func parseSpan(sd *trace.SpanData) (*model.Span, error) {
 		ID:        sd.SpanID.String(),
 		ParentID:  sd.ParentSpanID.String(),
 		TraceID:   sd.TraceID.String(),
-		Service:   string(base.Role),
+		Service:   string(model.GetBaseOptions().Role),
 		Operation: sd.Name,
 		Tags:      make(map[string]string),
 		Logs:      make(map[string]string),
-		Duration:  sd.EndTime.Sub(sd.StartTime).Nanoseconds() / 1000,
+		Duration:  sd.EndTime.Sub(sd.StartTime).Seconds(),
 		Status:    sd.Status.Code,
 		StartTime: sd.StartTime.Unix(),
 		EndTime:   sd.EndTime.Unix(),

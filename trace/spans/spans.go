@@ -10,18 +10,10 @@ const (
 	setupKey = "zdz"
 )
 
-var (
-	base *model.BaseOptions
-)
-
-func Init(baseOpt *model.BaseOptions) {
-	base = baseOpt
-}
-
 func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) {
 	ct, span := trace.StartSpan(ctx, name)
 	span.AddAttributes(trace.BoolAttribute(setupKey, true))
-	span.AddAttributes(trace.StringAttribute("node", base.Node)) // 如：to1000
+	span.AddAttributes(trace.StringAttribute("node", model.GetBaseOptions().Node)) // 如：to1000
 	return ct, span
 }
 

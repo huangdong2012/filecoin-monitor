@@ -10,13 +10,15 @@ const (
 )
 
 var (
-	Worker = &workerMetrics{
-		test: SetupCounterVec(naming(prefixWorker, "test")),
-	}
+	Worker = &workerMetrics{}
 )
 
 type workerMetrics struct {
 	test *prometheus.CounterVec
+}
+
+func (m *workerMetrics) init() {
+	m.test = SetupCounterVec(naming(prefixWorker, "test"))
 }
 
 func (m *workerMetrics) Test() prometheus.Counter {

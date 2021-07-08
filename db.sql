@@ -25,7 +25,7 @@ create table if not exists spans
     operation varchar(256) not null,
     tags jsonb not null,
     logs jsonb not null,
-    duration bigint not null,
+    duration numeric not null,
     status integer default 0 not null,
     start_time timestamp with time zone not null,
     end_time timestamp with time zone not null,

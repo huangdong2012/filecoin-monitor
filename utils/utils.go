@@ -17,3 +17,19 @@ func IpAddr() string {
 	}
 	return ipAddr
 }
+
+func GetKeys(kvs map[string]string) []string {
+	keys := make([]string, 0, 0)
+	for k, _ := range kvs {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func GetValues(kvs map[string]string) []string {
+	values := make([]string, 0, 0)
+	for _, v := range kvs {
+		values = append(values, v)
+	}
+	return values
+}

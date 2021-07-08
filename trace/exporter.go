@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opencensus.io/trace"
+	"grandhelmsman/filecoin-monitor/metric"
+	"grandhelmsman/filecoin-monitor/metric/metrics"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace/spans"
 	"grandhelmsman/filecoin-monitor/utils"
@@ -49,33 +51,38 @@ func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 }
 
 func (e *Exporter) pushMetric(span *model.Span) error {
-	//todo...
+	var (
+		ok    bool
+		name  string
+		gauge *prometheus.GaugeVec
+	)
+	if span.Tags == nil {
+		return nil
+	}
+	if name, ok = span.Tags[e.metricFlag]; !ok {
+		return nil
+	}
 
-	//var (
-	//	ok   bool
-	//	name string
-	//)
-	//if span.Tags == nil {
-	//	return nil
-	//}
-	//if name, ok = span.Tags[e.metricFlag]; !ok {
-	//	return nil
-	//}
-
-	//metric := e.getMetric(name)
-	//metric.With().Set(float64(span.Duration))
+	gauge = e.getMetric(name, span.Tags)
+	gauge.With(span.Tags).Set(span.Duration)
+	metric.Push()
 
 	return nil
 }
 
-func (e *Exporter) getMetric(name string) *prometheus.GaugeVec {
-	//todo...
-	//obj, ok := e.metrics.Load(name)
-	//if !ok{
-	//
-	//}
-	//
-	//m := promauto.NewGaugeVec(nil)
-	//m.
-	return nil
+func (e *Exporter) getMetric(name string, tags map[string]string) *prometheus.GaugeVec {
+	var (
+		ok    bool
+		obj   interface{}
+		gauge *prometheus.GaugeVec
+	)
+	if obj, ok = e.metrics.Load(name); ok {
+		if gauge, ok = obj.(*prometheus.GaugeVec); ok && gauge != nil {
+			return gauge
+		}
+	}
+
+	gauge = metrics.SetupGaugeVec(fmt.Sprintf("%v_%v", string(model.GetBaseOptions().Role), name), utils.GetKeys(tags)...)
+	e.metrics.Store(name, gauge)
+	return gauge
 }

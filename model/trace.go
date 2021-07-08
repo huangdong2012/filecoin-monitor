@@ -9,7 +9,7 @@ type Span struct {
 	Tags      map[string]string
 	Logs      map[string]string
 	Status    int32
-	Duration  int64
+	Duration  float64
 	StartTime int64
 	EndTime   int64
 }

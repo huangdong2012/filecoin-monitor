@@ -10,15 +10,17 @@ const (
 )
 
 var (
-	Miner = &minerMetrics{
-		blockCount:     SetupCounterVec(naming(prefixMiner, "block_count")),
-		nullRoundCount: SetupCounterVec(naming(prefixMiner, "null_round_count")),
-	}
+	Miner = &minerMetrics{}
 )
 
 type minerMetrics struct {
 	blockCount     *prometheus.CounterVec
 	nullRoundCount *prometheus.CounterVec
+}
+
+func (m *minerMetrics) init() {
+	m.blockCount = SetupCounterVec(naming(prefixMiner, "block_count"))
+	m.nullRoundCount = SetupCounterVec(naming(prefixMiner, "null_round_count"))
 }
 
 func (m *minerMetrics) BlockCount() prometheus.Counter {

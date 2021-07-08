@@ -12,7 +12,6 @@ const (
 )
 
 var (
-	base    *model.BaseOptions
 	options *model.MetricOptions
 )
 
@@ -24,11 +23,11 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 		metricOpt.PushInterval = defaultInterval
 	}
 	{
-		base = baseOpt
+		model.SetBaseOptions(baseOpt)
 		options = metricOpt
 		gatherHandler = exp.export
 		initRabbit()
-		metrics.Init(baseOpt)
+		metrics.Init()
 	}
 
 	//默认启用push-gateway主动上报的方式,如果配置了gather(prometheus主动收集)则停止主动上报

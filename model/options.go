@@ -1,6 +1,24 @@
 package model
 
-import "time"
+import (
+	"sync"
+	"time"
+)
+
+var (
+	base *BaseOptions
+	once = &sync.Once{}
+)
+
+func SetBaseOptions(baseOpt *BaseOptions) {
+	once.Do(func() {
+		base = baseOpt
+	})
+}
+
+func GetBaseOptions() *BaseOptions {
+	return base
+}
 
 type BaseOptions struct {
 	Role  Role

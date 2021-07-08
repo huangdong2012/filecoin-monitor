@@ -10,15 +10,17 @@ const (
 )
 
 var (
-	Lotus = &lotusMetrics{
-		test:  SetupCounterVec(naming(prefixLotus, "test")),
-		test2: SetupGaugeVec(naming(prefixLotus, "test2")),
-	}
+	Lotus = &lotusMetrics{}
 )
 
 type lotusMetrics struct {
 	test  *prometheus.CounterVec
 	test2 *prometheus.GaugeVec
+}
+
+func (m *lotusMetrics) init() {
+	m.test = SetupCounterVec(naming(prefixLotus, "test"))
+	m.test2 = SetupGaugeVec(naming(prefixLotus, "test2"))
 }
 
 func (m *lotusMetrics) Test() prometheus.Counter {
