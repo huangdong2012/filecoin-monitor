@@ -4,7 +4,6 @@ import (
 	"grandhelmsman/filecoin-monitor/metric"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace"
-	"grandhelmsman/filecoin-monitor/utils"
 	"sync"
 )
 
@@ -22,11 +21,8 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions, metricOpt *m
 		if traceOpt != nil {
 			trace.Init(baseOpt, traceOpt)
 		}
-
 		if metricOpt != nil {
 			metric.Init(baseOpt, metricOpt)
 		}
-
-		utils.InitLog(baseOpt.LogErr, baseOpt.LogInfo)
 	})
 }

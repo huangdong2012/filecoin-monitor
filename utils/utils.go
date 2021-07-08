@@ -1,6 +1,9 @@
 package utils
 
-import maddr "github.com/micro/go-micro/v2/util/addr"
+import (
+	maddr "github.com/micro/go-micro/v2/util/addr"
+	"time"
+)
 
 var (
 	ipAddr = "127.0.0.1"
@@ -18,6 +21,10 @@ func IpAddr() string {
 	return ipAddr
 }
 
+func TimeFormat(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05")
+}
+
 func GetKeys(kvs map[string]string) []string {
 	keys := make([]string, 0, 0)
 	for k, _ := range kvs {
@@ -32,4 +39,10 @@ func GetValues(kvs map[string]string) []string {
 		values = append(values, v)
 	}
 	return values
+}
+
+func Throw(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

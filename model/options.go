@@ -1,6 +1,7 @@
 package model
 
 import (
+	"grandhelmsman/filecoin-monitor/utils"
 	"sync"
 	"time"
 )
@@ -13,6 +14,7 @@ var (
 func SetBaseOptions(baseOpt *BaseOptions) {
 	once.Do(func() {
 		base = baseOpt
+		utils.InitLog(baseOpt.LogErr, baseOpt.LogInfo)
 	})
 }
 

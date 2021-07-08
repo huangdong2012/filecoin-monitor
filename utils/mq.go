@@ -14,6 +14,7 @@ func GetRabbitPublisher(url, ex, key string) *cony.Publisher {
 	exc := cony.Exchange{
 		Name:       ex,
 		Kind:       "topic",
+		Durable:    true,
 		AutoDelete: false,
 	}
 	cli.Declare([]cony.Declaration{
@@ -25,6 +26,41 @@ func GetRabbitPublisher(url, ex, key string) *cony.Publisher {
 	go loopRabbit(cli)
 
 	return publisher
+}
+
+func GetRabbitConsumer(url, ex, key, queue string) *cony.Consumer {
+	cli := cony.NewClient(
+		cony.URL(url),
+		cony.Backoff(cony.DefaultBackoff),
+	)
+
+	que := &cony.Queue{
+		Name:       queue,
+		Durable:    true,
+		AutoDelete: false,
+	}
+	exc := cony.Exchange{
+		Name:       ex,
+		Kind:       "topic",
+		Durable:    true,
+		AutoDelete: false,
+	}
+	bnd := cony.Binding{
+		Queue:    que,
+		Exchange: exc,
+		Key:      key,
+	}
+	cli.Declare([]cony.Declaration{
+		cony.DeclareQueue(que),
+		cony.DeclareExchange(exc),
+		cony.DeclareBinding(bnd),
+	})
+
+	cns := cony.NewConsumer(que)
+	cli.Consume(cns)
+	go loopRabbit(cli)
+
+	return cns
 }
 
 func loopRabbit(cli *cony.Client) {
