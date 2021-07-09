@@ -41,8 +41,8 @@ func TestMetric1(t *testing.T) {
 
 	go func() {
 		for range time.Tick(time.Second * 10) {
-			metrics.Lotus.Test().Inc()
-			metrics.Lotus.Test2().Set(float64(time.Now().Unix()))
+			metrics.Lotus.Test("label1").Inc()
+			metrics.Lotus.Test2("label1").Set(float64(time.Now().Unix()))
 		}
 	}()
 
@@ -64,8 +64,8 @@ func TestMetric2(t *testing.T) {
 		PushInterval: time.Second * 10,
 	})
 
-	metrics.Lotus.Test().Inc()
-	metrics.Lotus.Test2().Set(float64(time.Now().Unix()))
+	metrics.Lotus.Test("label1").Inc()
+	metrics.Lotus.Test2("label1").Set(float64(time.Now().Unix()))
 	Push()
 
 	time.Sleep(time.Second * 10)

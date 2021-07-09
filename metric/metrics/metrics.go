@@ -33,23 +33,20 @@ func naming(prefix, name string) string {
 }
 
 func SetupCounterVec(name string, labels ...string) *prometheus.CounterVec {
-	return promauto.With(registry).NewCounterVec(prometheus.CounterOpts{
-		Namespace: namespace,
-		Name:      name,
-		ConstLabels: map[string]string{
-			instance: utils.IpAddr(),
-			node:     model.GetBaseOptions().Node,
-		},
-	}, labels)
+	return promauto.With(registry).NewCounterVec(prometheus.CounterOpts(setupMetricOptions(name)), labels)
 }
 
 func SetupGaugeVec(name string, labels ...string) *prometheus.GaugeVec {
-	return promauto.With(registry).NewGaugeVec(prometheus.GaugeOpts{
+	return promauto.With(registry).NewGaugeVec(prometheus.GaugeOpts(setupMetricOptions(name)), labels)
+}
+
+func setupMetricOptions(name string) prometheus.Opts {
+	return prometheus.Opts{
 		Namespace: namespace,
 		Name:      name,
 		ConstLabels: map[string]string{
 			instance: utils.IpAddr(),
 			node:     model.GetBaseOptions().Node,
 		},
-	}, labels)
+	}
 }

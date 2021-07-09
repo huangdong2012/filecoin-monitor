@@ -8,6 +8,10 @@ import (
 )
 
 func InsertMetrics(ms []*model.Metric) error {
+	if len(ms) == 0 {
+		return nil
+	}
+
 	entities := make([]*Metric, 0, 0)
 	for _, m := range ms {
 		entity := &Metric{

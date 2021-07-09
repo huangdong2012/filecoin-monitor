@@ -23,7 +23,7 @@ var (
 )
 
 func main() {
-	model.SetBaseOptions(&model.BaseOptions{
+	model.InitBaseOptions(&model.BaseOptions{
 		LogErr: func(err error) {
 			fmt.Printf("error: %v\n", err)
 		},

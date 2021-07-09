@@ -19,14 +19,14 @@ type lotusMetrics struct {
 }
 
 func (m *lotusMetrics) init() {
-	m.test = SetupCounterVec(naming(prefixLotus, "test"))
-	m.test2 = SetupGaugeVec(naming(prefixLotus, "test2"))
+	m.test = SetupCounterVec(naming(prefixLotus, "test"), "label1")
+	m.test2 = SetupGaugeVec(naming(prefixLotus, "test2"), "label1")
 }
 
-func (m *lotusMetrics) Test() prometheus.Counter {
-	return m.test.WithLabelValues()
+func (m *lotusMetrics) Test(label1 string) prometheus.Counter {
+	return m.test.WithLabelValues(label1)
 }
 
-func (m *lotusMetrics) Test2() prometheus.Gauge {
-	return m.test2.WithLabelValues()
+func (m *lotusMetrics) Test2(label1 string) prometheus.Gauge {
+	return m.test2.WithLabelValues(label1)
 }

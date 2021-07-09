@@ -23,7 +23,7 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 		metricOpt.PushInterval = defaultInterval
 	}
 	{
-		model.SetBaseOptions(baseOpt)
+		model.InitBaseOptions(baseOpt)
 		options = metricOpt
 		metrics.Init(wrapperGather.inner)
 		initRabbit()
@@ -50,17 +50,20 @@ func parseMetrics(mf *dto.MetricFamily) []*model.Metric {
 
 	out := make([]*model.Metric, 0, 0)
 	for _, m := range mf.Metric {
+		if m == nil {
+			continue
+		}
 		item := &model.Metric{
-			Name:   *mf.Name,
-			Desc:   *mf.Help,
+			Name:   mf.GetName(),
+			Desc:   mf.GetHelp(),
 			Labels: parseLabels(m.Label),
 			Time:   time.Now().Unix(),
 		}
-		switch *mf.Type {
+		switch mf.GetType() {
 		case dto.MetricType_COUNTER:
-			item.Value = *m.Counter.Value
+			item.Value = m.Counter.GetValue()
 		case dto.MetricType_GAUGE:
-			item.Value = *m.Gauge.Value
+			item.Value = m.Gauge.GetValue()
 		default:
 			continue
 		}
@@ -73,7 +76,9 @@ func parseMetrics(mf *dto.MetricFamily) []*model.Metric {
 func parseLabels(ls []*dto.LabelPair) map[string]string {
 	out := make(map[string]string)
 	for _, l := range ls {
-		out[*l.Name] = *l.Value
+		if l != nil {
+			out[l.GetName()] = l.GetValue()
+		}
 	}
 	return out
 }

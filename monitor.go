@@ -17,7 +17,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions, metricOpt *m
 			panic("base options invalid")
 		}
 
-		model.SetBaseOptions(baseOpt)
+		model.InitBaseOptions(baseOpt)
 		if traceOpt != nil {
 			trace.Init(baseOpt, traceOpt)
 		}

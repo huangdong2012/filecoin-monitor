@@ -17,7 +17,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	}
 
 	{
-		model.SetBaseOptions(baseOpt)
+		model.InitBaseOptions(baseOpt)
 		options = traceOpt
 		initRabbit()
 	}

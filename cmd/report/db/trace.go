@@ -7,6 +7,10 @@ import (
 )
 
 func InsertSpan(span *model.Span) error {
+	if span == nil {
+		return nil
+	}
+
 	entity := &Span{
 		ID:         span.ID,
 		ParentID:   span.ParentID,

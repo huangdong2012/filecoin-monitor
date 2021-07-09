@@ -11,7 +11,7 @@ var (
 	once = &sync.Once{}
 )
 
-func SetBaseOptions(baseOpt *BaseOptions) {
+func InitBaseOptions(baseOpt *BaseOptions) {
 	once.Do(func() {
 		base = baseOpt
 		utils.InitLog(baseOpt.LogErr, baseOpt.LogInfo)

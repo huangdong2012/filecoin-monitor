@@ -102,10 +102,16 @@ func (e *exporter) export(gather prometheus.Gatherer) error {
 	if ms, err = gather.Gather(); err != nil {
 		return err
 	}
+	if len(ms) == 0 {
+		return nil
+	}
 	for _, mf := range ms {
 		if items := parseMetrics(mf); len(items) > 0 {
 			out = append(out, items...)
 		}
+	}
+	if len(out) == 0 {
+		return nil
 	}
 	if body, err = utils.ToJson(out); err != nil {
 		return err

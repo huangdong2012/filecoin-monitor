@@ -9,7 +9,6 @@ import (
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace/spans"
 	"grandhelmsman/filecoin-monitor/utils"
-	"sync"
 	"time"
 )
 
@@ -17,7 +16,6 @@ func newExporter() *Exporter {
 	return &Exporter{
 		registry:        prometheus.NewRegistry(),
 		metricFlag:      "metric",
-		metrics:         &sync.Map{},
 		metricSpanID:    "span_id",
 		metricStatus:    "status",
 		metricStartTime: "start_time",
@@ -28,7 +26,6 @@ func newExporter() *Exporter {
 type Exporter struct {
 	registry        *prometheus.Registry
 	metricFlag      string
-	metrics         *sync.Map
 	metricSpanID    string
 	metricStatus    string
 	metricStartTime string
@@ -74,7 +71,6 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 		return nil
 	}
 
-	gauge = e.getMetric(name, utils.GetKeys(span.Tags))
 	labelValues := map[string]string{
 		e.metricSpanID:    span.ID,
 		e.metricStatus:    fmt.Sprintf("%v", span.Status),
@@ -84,33 +80,29 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 	for k, v := range span.Tags {
 		labelValues[k] = v
 	}
+
+	//此处使用了临时的metric(用完就释放,每次都重新创建)，因为: 该metric的label值每次都不同(span_id等)，
+	//导致MetricFamily里面的Metrics不断递增，数据被重复收集
+	gauge = e.newMetric(name, utils.GetKeys(span.Tags))
+	defer e.disposeMetric(gauge)
 	gauge.With(labelValues).Set(span.Duration)
 	metric.NewScope().Add(gauge).Push()
 
 	return nil
 }
 
-func (e *Exporter) getMetric(name string, labels []string) *prometheus.GaugeVec {
-	var (
-		ok        bool
-		obj       interface{}
-		gauge     *prometheus.GaugeVec
-		gaugeName = fmt.Sprintf("%v_%v", string(model.GetBaseOptions().Role), name)
-		gaugeLbs  = append(labels, e.metricSpanID, e.metricStatus, e.metricStartTime, e.metricEndTime)
-	)
-	if obj, ok = e.metrics.Load(name); ok {
-		if gauge, ok = obj.(*prometheus.GaugeVec); ok && gauge != nil {
-			return gauge
-		}
-	}
-
-	gauge = e.SetupGaugeVec(gaugeName, gaugeLbs...)
-	e.metrics.Store(name, gauge)
-	return gauge
+func (e *Exporter) newMetric(name string, labels []string) *prometheus.GaugeVec {
+	gaugeName := fmt.Sprintf("%v_%v", string(model.GetBaseOptions().Role), name)
+	gaugeLbs := append(labels, e.metricSpanID, e.metricStatus, e.metricStartTime, e.metricEndTime)
+	return promauto.With(e.registry).NewGaugeVec(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName)), gaugeLbs)
 }
 
-func (e *Exporter) SetupGaugeVec(name string, labels ...string) *prometheus.GaugeVec {
-	return promauto.With(e.registry).NewGaugeVec(prometheus.GaugeOpts{
+func (e *Exporter) disposeMetric(gauge *prometheus.GaugeVec) {
+	e.registry.Unregister(gauge)
+}
+
+func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
+	return prometheus.Opts{
 		Namespace: "zdz",
 		Name:      name,
 		Help:      "from span",
@@ -118,5 +110,5 @@ func (e *Exporter) SetupGaugeVec(name string, labels ...string) *prometheus.Gaug
 			"instance": utils.IpAddr(),
 			"node":     model.GetBaseOptions().Node,
 		},
-	}, labels)
+	}
 }
