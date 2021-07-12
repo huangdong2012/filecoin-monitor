@@ -3,7 +3,6 @@ package trace
 import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/metric"
 	"grandhelmsman/filecoin-monitor/model"
@@ -14,7 +13,6 @@ import (
 
 func newExporter() *Exporter {
 	return &Exporter{
-		registry:        prometheus.NewRegistry(),
 		metricFlag:      "metric",
 		metricSpanID:    "span_id",
 		metricStatus:    "status",
@@ -24,7 +22,6 @@ func newExporter() *Exporter {
 }
 
 type Exporter struct {
-	registry        *prometheus.Registry
 	metricFlag      string
 	metricSpanID    string
 	metricStatus    string
@@ -81,10 +78,9 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 		labelValues[k] = v
 	}
 
-	//此处使用了临时的metric(用完就释放,每次都重新创建)，因为: 该metric的label值每次都不同(span_id等)，
+	//此处使用了临时的metric(每次都重新创建)，因为: 该metric的label值每次都不同(span_id等)，
 	//导致MetricFamily里面的Metrics不断递增，数据被重复收集
 	gauge = e.newMetric(name, utils.GetKeys(span.Tags))
-	defer e.disposeMetric(gauge)
 	gauge.With(labelValues).Set(span.Duration)
 	metric.NewScope().Add(gauge).Push()
 
@@ -94,11 +90,7 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 func (e *Exporter) newMetric(name string, labels []string) *prometheus.GaugeVec {
 	gaugeName := fmt.Sprintf("%v_%v", string(model.GetBaseOptions().Role), name)
 	gaugeLbs := append(labels, e.metricSpanID, e.metricStatus, e.metricStartTime, e.metricEndTime)
-	return promauto.With(e.registry).NewGaugeVec(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName)), gaugeLbs)
-}
-
-func (e *Exporter) disposeMetric(gauge *prometheus.GaugeVec) {
-	e.registry.Unregister(gauge)
+	return prometheus.NewGaugeVec(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName)), gaugeLbs)
 }
 
 func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
