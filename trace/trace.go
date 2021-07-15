@@ -61,6 +61,7 @@ func parseSpan(sd *trace.SpanData) (*model.Span, error) {
 		}
 	}
 	if sd.Status.Code != 0 {
+		span.Tags["message"] = sd.Status.Message
 		span.Logs["error"] = sd.Status.Message
 	}
 	return span, nil

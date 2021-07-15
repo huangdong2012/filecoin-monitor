@@ -15,8 +15,8 @@ type WindowPostSpan struct {
 	*trace.Span
 }
 
-func (s *WindowPostSpan) Starting() {
-	startingSpan(s.Span)
+func (s *WindowPostSpan) Starting(msg string) {
+	startingSpan(s.Span, msg)
 }
 
 func (s *WindowPostSpan) Finish(err error) {

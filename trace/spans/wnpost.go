@@ -14,8 +14,8 @@ type WinningPostSpan struct {
 	*trace.Span
 }
 
-func (s *WinningPostSpan) Starting() {
-	startingSpan(s.Span)
+func (s *WinningPostSpan) Starting(msg string) {
+	startingSpan(s.Span, msg)
 }
 
 func (s *WinningPostSpan) Finish(err error) {

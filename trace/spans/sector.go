@@ -14,8 +14,8 @@ type SectorSpan struct {
 	*trace.Span
 }
 
-func (s *SectorSpan) Starting() {
-	startingSpan(s.Span)
+func (s *SectorSpan) Starting(msg string) {
+	startingSpan(s.Span, msg)
 }
 
 func (s *SectorSpan) Finish(err error) {
@@ -56,8 +56,4 @@ func (s *SectorSpan) SetSize(size string) {
 */
 func (s *SectorSpan) SetStep(step string) {
 	s.AddAttributes(trace.StringAttribute("step", step))
-}
-
-func (s *SectorSpan) SetMessage(msg string) {
-	s.AddAttributes(trace.StringAttribute("message", msg))
 }

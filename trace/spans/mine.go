@@ -14,8 +14,8 @@ type MineSpan struct {
 	*trace.Span
 }
 
-func (s *MineSpan) Starting() {
-	startingSpan(s.Span)
+func (s *MineSpan) Starting(msg string) {
+	startingSpan(s.Span, msg)
 }
 
 func (s *MineSpan) Finish(err error) {
@@ -44,8 +44,4 @@ func (s *MineSpan) SetWinCount(count int) {
 
 func (s *MineSpan) SetBlockCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("block_count", int64(count)))
-}
-
-func (s *MineSpan) SetMessage(msg string) {
-	s.AddAttributes(trace.StringAttribute("message", msg))
 }

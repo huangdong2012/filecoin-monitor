@@ -24,8 +24,9 @@ func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) 
 	return ct, span
 }
 
-func startingSpan(span *trace.Span) {
+func startingSpan(span *trace.Span, msg string) {
 	span.AddAttributes(trace.Int64Attribute("status", int64(model.WorkerStatus_Running)))
+	span.AddAttributes(trace.StringAttribute("message", msg))
 	if StartingHandler != nil {
 		if sd := makeSpanData(span); sd != nil {
 			StartingHandler(sd)
@@ -39,6 +40,10 @@ func finishSpan(span *trace.Span, err error) {
 	} else {
 		span.AddAttributes(trace.Int64Attribute("status", int64(model.WorkerStatus_Error)))
 		span.AddAttributes(trace.StringAttribute("message", err.Error()))
+		span.SetStatus(trace.Status{
+			Code:    trace.StatusCodeInternal,
+			Message: err.Error(),
+		})
 	}
 	span.End()
 }
