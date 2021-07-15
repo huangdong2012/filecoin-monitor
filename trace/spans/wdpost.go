@@ -7,20 +7,12 @@ import (
 )
 
 func NewWindowPostSpan(ctx context.Context) (context.Context, *WindowPostSpan) {
-	ct, span := setupSpan(ctx, "monitor-window-post")
-	return ct, &WindowPostSpan{span}
+	ct, span := setupSpan(ctx, "monitor-wdpost")
+	return ct, &WindowPostSpan{&StatusSpan{span}}
 }
 
 type WindowPostSpan struct {
-	*trace.Span
-}
-
-func (s *WindowPostSpan) Starting(msg string) {
-	startingSpan(s.Span, msg)
-}
-
-func (s *WindowPostSpan) Finish(err error) {
-	finishSpan(s.Span, err)
+	*StatusSpan
 }
 
 func (s *SectorSpan) SetDeadline(deadline int) {

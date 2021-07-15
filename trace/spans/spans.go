@@ -15,6 +15,18 @@ var (
 	StartingHandler func(sd *trace.SpanData)
 )
 
+type StatusSpan struct {
+	*trace.Span
+}
+
+func (s *StatusSpan) Starting(msg string) {
+	startingSpan(s.Span, msg)
+}
+
+func (s *StatusSpan) Finish(err error) {
+	finishSpan(s.Span, err)
+}
+
 func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) {
 	ct, span := trace.StartSpan(ctx, name)
 	span.AddAttributes(trace.BoolAttribute(setupKey, true))

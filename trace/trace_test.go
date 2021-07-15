@@ -95,7 +95,7 @@ func TestMineTrace(t *testing.T) {
 
 	_, span := spans.NewMineSpan(context.Background())
 	span.SetEpoch(1000)
-	span.Starting()
+	span.Starting("")
 
 	time.Sleep(time.Second * 5)
 	span.SetBeacon("this is beacon")
