@@ -6,12 +6,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/utils"
+	"strconv"
 )
 
 const (
 	namespace = "zdz"
+	roomID    = "room_id"
 	instance  = "instance"
-	node      = "node"
+	miner     = "miner"
 )
 
 var (
@@ -45,8 +47,9 @@ func setupMetricOptions(name string) prometheus.Opts {
 		Namespace: namespace,
 		Name:      name,
 		ConstLabels: map[string]string{
+			roomID:   strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
 			instance: utils.IpAddr(),
-			node:     model.GetBaseOptions().Node,
+			miner:    model.GetBaseOptions().Node,
 		},
 	}
 }

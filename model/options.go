@@ -23,9 +23,10 @@ func GetBaseOptions() *BaseOptions {
 }
 
 type BaseOptions struct {
-	Role  Role
-	Node  string //如: t01000
-	MQUrl string //rabbit or kafka
+	RoomID int64  //机房ID
+	Role   Role   //软件包类型
+	Node   string //如: t01000
+	MQUrl  string //rabbit or kafka
 
 	LogErr  func(error)
 	LogInfo func(string)

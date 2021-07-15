@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	prefixWorker = string(model.RoleWorker)
+	prefixWorker = string(model.Role_Worker)
 )
 
 var (

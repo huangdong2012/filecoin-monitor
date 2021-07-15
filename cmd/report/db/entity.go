@@ -27,6 +27,7 @@ type Span struct {
 	StartTime  time.Time `gorm:"column:start_time;type:TIMESTAMPTZ;" json:"start_time"`
 	EndTime    time.Time `gorm:"column:end_time;type:TIMESTAMPTZ;" json:"end_time"`
 	CreateTime time.Time `gorm:"column:create_time;type:TIMESTAMPTZ;" json:"create_time"`
+	UpdateTime time.Time `gorm:"column:update_time;type:TIMESTAMPTZ;" json:"update_time"`
 }
 
 func (u *Span) TableName() string {

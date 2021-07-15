@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	prefixMiner = string(model.RoleMiner)
+	prefixMiner = string(model.Role_Miner)
 )
 
 var (

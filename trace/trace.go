@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/model"
+	"grandhelmsman/filecoin-monitor/trace/spans"
 )
 
 var (
@@ -22,10 +23,13 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 		initRabbit()
 	}
 
-	trace.RegisterExporter(newExporter())
+	trace.RegisterExporter(exp)
 	trace.ApplyConfig(trace.Config{
 		DefaultSampler: trace.AlwaysSample(),
 	})
+
+	//starting-handler
+	spans.StartingHandler = exp.ExportSpan
 }
 
 func parseSpan(sd *trace.SpanData) (*model.Span, error) {

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	prefixStorage = string(model.RoleStorage)
+	prefixStorage = string(model.Role_Storage)
 )
 
 var (

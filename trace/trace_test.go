@@ -4,6 +4,7 @@ import (
 	"context"
 	"grandhelmsman/filecoin-monitor/metric"
 	"grandhelmsman/filecoin-monitor/model"
+	"grandhelmsman/filecoin-monitor/trace/spans"
 	"time"
 
 	"contrib.go.opencensus.io/exporter/jaeger"
@@ -19,7 +20,7 @@ const (
 
 var (
 	opt = &model.BaseOptions{
-		Role:  model.RoleMiner,
+		Role:  model.Role_Miner,
 		Node:  "t01000",
 		MQUrl: "amqp://root:root@localhost/",
 	}
@@ -43,10 +44,7 @@ func setupTrace() {
 	trace.ApplyConfig(trace.Config{
 		DefaultSampler: trace.AlwaysSample(),
 	})
-}
 
-func TestTrace(t *testing.T) {
-	setupTrace()
 	Init(opt, &model.TraceOptions{
 		Exchange: "zdz.exchange.trace",
 		RouteKey: "*",
@@ -59,6 +57,10 @@ func TestTrace(t *testing.T) {
 		PushJob:      "test-job",
 		PushInterval: time.Second * 10,
 	})
+}
+
+func TestTrace(t *testing.T) {
+	setupTrace()
 
 	for i := 0; i < 3; i++ {
 		ctx, span := trace.StartSpan(context.Background(), "/root")
@@ -86,4 +88,20 @@ func TestTrace(t *testing.T) {
 	}
 
 	time.Sleep(time.Second * 60)
+}
+
+func TestMineTrace(t *testing.T) {
+	setupTrace()
+
+	_, span := spans.NewMineSpan(context.Background())
+	span.SetEpoch(1000)
+	span.Starting()
+
+	time.Sleep(time.Second * 5)
+	span.SetBeacon("this is beacon")
+	span.SetTotalPower("total power")
+	span.SetMinerPower("miner power")
+	span.SetWinCount(2)
+	span.SetBlockCount(1)
+	span.Finish(nil)
 }

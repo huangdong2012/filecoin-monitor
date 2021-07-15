@@ -8,18 +8,19 @@ import (
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace/spans"
 	"grandhelmsman/filecoin-monitor/utils"
+	"strconv"
 	"time"
 )
 
-func newExporter() *Exporter {
-	return &Exporter{
+var(
+	exp = &Exporter{
 		metricFlag:      "metric",
 		metricSpanID:    "span_id",
 		metricStatus:    "status",
 		metricStartTime: "start_time",
 		metricEndTime:   "end_time",
 	}
-}
+)
 
 type Exporter struct {
 	metricFlag      string
@@ -50,8 +51,12 @@ func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 	if err = sendToRabbit([]byte(data)); err != nil {
 		utils.Error(fmt.Errorf("trace exporter send to mq error: %v", err.Error()))
 	}
-	if err = e.pushMetric(span); err != nil {
-		utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
+	if str, ok := span.Tags["status"]; ok {
+		if status, err := strconv.ParseInt(str, 10, 64); err == nil && status > int64(model.WorkerStatus_Running) {
+			if err = e.pushMetric(span); err != nil {
+				utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
+			}
+		}
 	}
 }
 
@@ -99,8 +104,9 @@ func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
 		Name:      name,
 		Help:      "from span",
 		ConstLabels: map[string]string{
+			"room_id":  strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
 			"instance": utils.IpAddr(),
-			"node":     model.GetBaseOptions().Node,
+			"miner":    model.GetBaseOptions().Node,
 		},
 	}
 }
