@@ -5,10 +5,12 @@ import (
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/utils"
+	"strings"
 )
 
 const (
-	setupKey = "zdz"
+	setupKey     = "zdz"
+	metricEnable = "metric-enable"
 )
 
 var (
@@ -73,4 +75,11 @@ func Verify(sd *trace.SpanData) bool {
 		}
 	}
 	return false
+}
+
+func MetricEnable(tags map[string]string) bool {
+	if str, ok := tags[metricEnable]; ok && strings.ToLower(str) == "false" {
+		return false
+	}
+	return true
 }

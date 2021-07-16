@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var(
+var (
 	exp = &Exporter{
 		metricFlag:      "metric",
 		metricSpanID:    "span_id",
@@ -51,7 +51,7 @@ func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 	if err = sendToRabbit([]byte(data)); err != nil {
 		utils.Error(fmt.Errorf("trace exporter send to mq error: %v", err.Error()))
 	}
-	if str, ok := span.Tags["status"]; ok {
+	if str, ok := span.Tags["status"]; ok && spans.MetricEnable(span.Tags) {
 		if status, err := strconv.ParseInt(str, 10, 64); err == nil && status > int64(model.WorkerStatus_Running) {
 			if err = e.pushMetric(span); err != nil {
 				utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
