@@ -12,9 +12,9 @@ import (
 
 var (
 	opt = &model.BaseOptions{
-		Role:  model.Role_Lotus,
-		Node:  "t01000",
-		MQUrl: "amqp://root:root@localhost/",
+		Role:    model.Role_Lotus,
+		MinerID: "t01000",
+		MQUrl:   "amqp://root:root@localhost/",
 	}
 )
 

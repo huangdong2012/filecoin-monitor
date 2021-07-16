@@ -16,9 +16,6 @@ var (
 )
 
 func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
-	if len(metricOpt.Exchange) == 0 || len(metricOpt.RouteKey) == 0 {
-		panic("trace exchange or route-key invalid")
-	}
 	if metricOpt.PushInterval < defaultInterval {
 		metricOpt.PushInterval = defaultInterval
 	}
@@ -26,7 +23,6 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 		model.InitBaseOptions(baseOpt)
 		options = metricOpt
 		metrics.Init(wrapperGather.inner)
-		initRabbit()
 	}
 
 	//默认启用push-gateway主动上报的方式,如果配置了gather(prometheus主动收集)则停止主动上报

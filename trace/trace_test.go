@@ -20,9 +20,9 @@ const (
 
 var (
 	opt = &model.BaseOptions{
-		Role:  model.Role_Miner,
-		Node:  "t01000",
-		MQUrl: "amqp://root:root@localhost/",
+		Role:    model.Role_Miner,
+		MinerID: "t01000",
+		MQUrl:   "amqp://root:root@localhost/",
 	}
 )
 

@@ -9,8 +9,13 @@ import (
 )
 
 const (
-	setupKey     = "zdz"
-	metricEnable = "metric-enable"
+	tagSetupKey     = "zdz"
+	tagMetricEnable = "metric-enable"
+	tagRoomID       = "room_id"
+	tagHostIP       = "host_ip"
+	tagMinerID      = "miner_id"
+	tagStatus       = "status"
+	tagMessage      = "message"
 )
 
 var (
@@ -31,16 +36,16 @@ func (s *StatusSpan) Finish(err error) {
 
 func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) {
 	ct, span := trace.StartSpan(ctx, name)
-	span.AddAttributes(trace.BoolAttribute(setupKey, true))
-	span.AddAttributes(trace.Int64Attribute("room_id", model.GetBaseOptions().RoomID))
-	span.AddAttributes(trace.StringAttribute("host_ip", utils.IpAddr()))
-	span.AddAttributes(trace.StringAttribute("miner", model.GetBaseOptions().Node)) // 如：to1000
+	span.AddAttributes(trace.BoolAttribute(tagSetupKey, true))
+	span.AddAttributes(trace.Int64Attribute(tagRoomID, model.GetBaseOptions().RoomID))
+	span.AddAttributes(trace.StringAttribute(tagHostIP, utils.IpAddr()))
+	span.AddAttributes(trace.StringAttribute(tagMinerID, model.GetBaseOptions().MinerID)) // 如：to1000
 	return ct, span
 }
 
 func startingSpan(span *trace.Span, msg string) {
-	span.AddAttributes(trace.Int64Attribute("status", int64(model.WorkerStatus_Running)))
-	span.AddAttributes(trace.StringAttribute("message", msg))
+	span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Running)))
+	span.AddAttributes(trace.StringAttribute(tagMessage, msg))
 	if StartingHandler != nil {
 		if sd := makeSpanData(span); sd != nil {
 			StartingHandler(sd)
@@ -50,10 +55,10 @@ func startingSpan(span *trace.Span, msg string) {
 
 func finishSpan(span *trace.Span, err error) {
 	if err == nil {
-		span.AddAttributes(trace.Int64Attribute("status", int64(model.WorkerStatus_Finish)))
+		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Finish)))
 	} else {
-		span.AddAttributes(trace.Int64Attribute("status", int64(model.WorkerStatus_Error)))
-		span.AddAttributes(trace.StringAttribute("message", err.Error()))
+		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Error)))
+		span.AddAttributes(trace.StringAttribute(tagMessage, err.Error()))
 		span.SetStatus(trace.Status{
 			Code:    trace.StatusCodeInternal,
 			Message: err.Error(),
@@ -70,7 +75,7 @@ func makeSpanData(s *trace.Span) *trace.SpanData {
 
 func Verify(sd *trace.SpanData) bool {
 	for k, _ := range sd.Attributes {
-		if k == setupKey {
+		if k == tagSetupKey {
 			return true
 		}
 	}
@@ -78,7 +83,7 @@ func Verify(sd *trace.SpanData) bool {
 }
 
 func MetricEnable(tags map[string]string) bool {
-	if str, ok := tags[metricEnable]; ok && strings.ToLower(str) == "false" {
+	if str, ok := tags[tagMetricEnable]; ok && strings.ToLower(str) == "false" {
 		return false
 	}
 	return true

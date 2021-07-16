@@ -9,11 +9,16 @@ const (
 	Role_Storage Role = "storage"
 )
 
-type WorkerStatus int32
+type NodeStatus int32
 
 const (
-	WorkerStatus_IDLE WorkerStatus = iota
-	WorkerStatus_Running
-	WorkerStatus_Finish
-	WorkerStatus_Error
+	NodeStatus_Online NodeStatus = iota
+	NodeStatus_Offline
+)
+
+const (
+	TaskStatus_IDLE = iota
+	TaskStatus_Running
+	TaskStatus_Finish
+	TaskStatus_Error
 )

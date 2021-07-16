@@ -13,15 +13,8 @@ var (
 )
 
 func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
-	if len(traceOpt.Exchange) == 0 || len(traceOpt.RouteKey) == 0 {
-		panic("trace exchange or route-key invalid")
-	}
-
-	{
-		model.InitBaseOptions(baseOpt)
-		options = traceOpt
-		initRabbit()
-	}
+	model.InitBaseOptions(baseOpt)
+	options = traceOpt
 
 	trace.RegisterExporter(exp)
 	trace.ApplyConfig(trace.Config{

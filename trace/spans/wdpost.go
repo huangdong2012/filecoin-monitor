@@ -31,6 +31,10 @@ func (s *SectorSpan) SetSectorCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("sector_count", int64(count)))
 }
 
+func (s *SectorSpan) SetSkipCount(count int) {
+	s.AddAttributes(trace.Int64Attribute("skip_count", int64(count)))
+}
+
 func (s *SectorSpan) SetOpenTime(ot time.Time) {
 	s.AddAttributes(trace.Int64Attribute("open_time", ot.Unix()))
 }

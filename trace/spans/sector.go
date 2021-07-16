@@ -41,3 +41,7 @@ func (s *SectorSpan) SetSize(size string) {
 func (s *SectorSpan) SetStep(step string) {
 	s.AddAttributes(trace.StringAttribute("step", step))
 }
+
+func (s *SectorSpan) SetWorkIP(ip string) {
+	s.AddAttributes(trace.StringAttribute("work_ip", ip))
+}

@@ -95,9 +95,7 @@ func (e *exporter) export(gather prometheus.Gatherer) error {
 	var (
 		err error
 		ms  []*dto.MetricFamily
-
-		body string
-		out  = make([]*model.Metric, 0, 0)
+		out = make([]*model.Metric, 0, 0)
 	)
 	if ms, err = gather.Gather(); err != nil {
 		return err
@@ -113,11 +111,8 @@ func (e *exporter) export(gather prometheus.Gatherer) error {
 	if len(out) == 0 {
 		return nil
 	}
-	if body, err = utils.ToJson(out); err != nil {
-		return err
-	}
-	if err = sendToRabbit([]byte(body)); err != nil {
-		return err
+	if options.ExportMetric != nil {
+		options.ExportMetric(out)
 	}
 	return nil
 }

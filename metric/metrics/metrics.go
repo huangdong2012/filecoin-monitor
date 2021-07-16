@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	namespace = "zdz"
-	roomID    = "room_id"
-	instance  = "instance"
-	miner     = "miner"
+	namespace     = "zdz"
+	labelRoomID   = "room_id"
+	labelInstance = "instance"
+	labelMinerID  = "miner_id"
 )
 
 var (
@@ -47,9 +47,9 @@ func setupMetricOptions(name string) prometheus.Opts {
 		Namespace: namespace,
 		Name:      name,
 		ConstLabels: map[string]string{
-			roomID:   strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
-			instance: utils.IpAddr(),
-			miner:    model.GetBaseOptions().Node,
+			labelRoomID:   strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
+			labelInstance: utils.IpAddr(),
+			labelMinerID:  model.GetBaseOptions().MinerID,
 		},
 	}
 }

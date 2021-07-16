@@ -23,7 +23,7 @@ func NewStorageSpan(ctx context.Context) (context.Context, *NodeSpan) {
 
 func newNodeSpan(ctx context.Context, name string) (context.Context, *NodeSpan) {
 	ct, span := setupSpan(ctx, name)
-	span.AddAttributes(trace.BoolAttribute(metricEnable, false)) //不导出metric
+	span.AddAttributes(trace.BoolAttribute(tagMetricEnable, false)) //不导出metric
 	return ct, &NodeSpan{span}
 }
 

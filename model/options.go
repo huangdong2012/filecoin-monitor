@@ -23,25 +23,22 @@ func GetBaseOptions() *BaseOptions {
 }
 
 type BaseOptions struct {
-	RoomID int64  //机房ID
-	Role   Role   //软件包类型
-	Node   string //如: t01000
-	MQUrl  string //rabbit or kafka
+	RoomID  int64  //机房ID
+	Role    Role   //软件包类型
+	MinerID string //如:t01000
 
 	LogErr  func(error)
 	LogInfo func(string)
 }
 
 type TraceOptions struct {
-	Exchange string
-	RouteKey string
+	ExportSpan func(span *Span)
 }
 
 type MetricOptions struct {
-	Exchange string
-	RouteKey string
-
 	PushUrl      string        //push-gateway url
 	PushJob      string        //push-gateway job name
 	PushInterval time.Duration //上报metric间隔
+
+	ExportMetric func(metrics []*Metric)
 }

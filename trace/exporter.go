@@ -35,7 +35,6 @@ func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 	var (
 		err  error
 		span *model.Span
-		data string
 	)
 	if !spans.Verify(sd) {
 		return
@@ -44,20 +43,25 @@ func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 		utils.Error(fmt.Errorf("parse span data error: %v", err))
 		return
 	}
-	if data, err = utils.ToJson(span); err != nil {
-		utils.Error(fmt.Errorf("marshal span to json error: %v", err))
-		return
+	if options.ExportSpan != nil {
+		options.ExportSpan(span)
 	}
-	if err = sendToRabbit([]byte(data)); err != nil {
-		utils.Error(fmt.Errorf("trace exporter send to mq error: %v", err.Error()))
+	if spans.MetricEnable(span.Tags) && e.pushMetricEnable(span.Tags) {
+		if err = e.pushMetric(span); err != nil {
+			utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
+		}
 	}
-	if str, ok := span.Tags["status"]; ok && spans.MetricEnable(span.Tags) {
-		if status, err := strconv.ParseInt(str, 10, 64); err == nil && status > int64(model.WorkerStatus_Running) {
-			if err = e.pushMetric(span); err != nil {
-				utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
+}
+
+func (e *Exporter) pushMetricEnable(tags map[string]string) bool {
+	if tagStatus, ok := tags["status"]; ok {
+		if status, err := strconv.Atoi(tagStatus); err == nil {
+			if status < model.TaskStatus_Finish {
+				return false
 			}
 		}
 	}
+	return true
 }
 
 func (e *Exporter) pushMetric(span *model.Span) error {
@@ -106,7 +110,7 @@ func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
 		ConstLabels: map[string]string{
 			"room_id":  strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
 			"instance": utils.IpAddr(),
-			"miner":    model.GetBaseOptions().Node,
+			"miner_id": model.GetBaseOptions().MinerID,
 		},
 	}
 }

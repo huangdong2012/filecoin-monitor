@@ -13,7 +13,7 @@ var (
 
 func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions, metricOpt *model.MetricOptions) {
 	once.Do(func() {
-		if baseOpt == nil || len(baseOpt.Node) == 0 {
+		if baseOpt == nil || len(baseOpt.MinerID) == 0 {
 			panic("base options invalid")
 		}
 
