@@ -42,6 +42,14 @@ func (s *SectorSpan) SetStep(step string) {
 	s.AddAttributes(trace.StringAttribute("step", step))
 }
 
+func (s *SectorSpan) SetPath(path string) {
+	s.AddAttributes(trace.StringAttribute("path", path))
+}
+
 func (s *SectorSpan) SetWorkIP(ip string) {
 	s.AddAttributes(trace.StringAttribute("work_ip", ip))
+}
+
+func (s *SectorSpan) SetWorkNo(no string) {
+	s.AddAttributes(trace.StringAttribute("work_no", no))
 }

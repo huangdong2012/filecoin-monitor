@@ -21,22 +21,25 @@ type LotusInfo struct {
 
 type MinerInfo struct {
 	*NodeInfo
-	MinerID     string       `json:"miner_id"`     //矿工账号 如:t01000
-	PeerID      string       `json:"peer_id"`      //libp2p地址
-	LotusPeerID string       `json:"lotus"`        //所属的链节点的libp2p地址
-	PledgeLoop  bool         `json:"pledge_loop"`  //是否开启刷单
-	PowerInfo   *PowerInfo   `json:"power_info"`   //算力信息
-	BalanceInfo *BalanceInfo `json:"balance_info"` //余额信息
+	MinerID           string       `json:"miner_id"`            //矿工账号 如:t01000
+	PeerID            string       `json:"peer_id"`             //libp2p地址
+	LotusPeerID       string       `json:"lotus"`               //所属的链节点的libp2p地址
+	PledgeLoop        bool         `json:"pledge_loop"`         //是否开启刷单
+	RemoteWinningPost bool         `json:"remote_winning_post"` //是否允许远程winning-post
+	RemoteWindowPost  bool         `json:"remote_window_post"`  //是否允许远程window-post
+	PowerInfo         *PowerInfo   `json:"power_info"`          //算力信息
+	BalanceInfo       *BalanceInfo `json:"balance_info"`        //余额信息
 }
 
 type WorkerInfo struct {
 	*NodeInfo
-	MinerID string `json:"lotus"` //所属的矿工节点ID 如t01000
+	WorkerNo string `json:"worker_no"` //worker编号
+	MinerID  string `json:"lotus"`     //所属的矿工节点ID 如t01000
 }
 
 type StorageInfo struct {
 	*NodeInfo
-	//todo 挂载action信息
+	//todo 挂载action信息 & 存储路径关联信息
 }
 
 type WalletInfo struct {

@@ -1,23 +1,23 @@
 package model
 
 type Span struct {
-	ID        string
-	ParentID  string
-	TraceID   string
-	Service   string
-	Operation string
-	Tags      map[string]string
-	Logs      map[string]string
-	Status    int32
-	Duration  float64
-	StartTime int64
-	EndTime   int64
+	ID        string            `json:"id"`
+	ParentID  string            `json:"parent_id"`
+	TraceID   string            `json:"trace_id"`
+	Service   string            `json:"service"`
+	Operation string            `json:"operation"`
+	Tags      map[string]string `json:"tags"`
+	Logs      map[string]string `json:"logs"`
+	Status    int32             `json:"status"`
+	Duration  float64           `json:"duration"`
+	StartTime int64             `json:"start_time"`
+	EndTime   int64             `json:"end_time"`
 }
 
 type Metric struct {
-	Name   string
-	Desc   string
-	Value  float64
-	Time   int64
-	Labels map[string]string
+	Name   string            `json:"name"`
+	Desc   string            `json:"desc"`
+	Value  float64           `json:"value"`
+	Time   int64             `json:"time"`
+	Labels map[string]string `json:"labels"`
 }
