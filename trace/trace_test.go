@@ -20,9 +20,8 @@ const (
 
 var (
 	opt = &model.BaseOptions{
-		Role:    model.Role_Miner,
-		MinerID: "t01000",
-		MQUrl:   "amqp://root:root@localhost/",
+		PackageKind: model.PackageKind_Miner,
+		MinerID:     "t01000",
 	}
 )
 
@@ -34,7 +33,7 @@ func setupTrace() {
 
 	je, err := jaeger.NewExporter(jaeger.Options{
 		AgentEndpoint: agentEndpointURI,
-		ServiceName:   string(opt.Role),
+		ServiceName:   string(opt.PackageKind),
 	})
 	if err != nil {
 		panic(err)
@@ -46,13 +45,9 @@ func setupTrace() {
 	})
 
 	Init(opt, &model.TraceOptions{
-		Exchange: "zdz.exchange.trace",
-		RouteKey: "*",
+		ExportAll: true,
 	})
 	metric.Init(opt, &model.MetricOptions{
-		Exchange: "zdz.exchange.metric",
-		RouteKey: "*",
-
 		PushUrl:      "http://localhost:9091",
 		PushJob:      "test-job",
 		PushInterval: time.Second * 10,
@@ -104,4 +99,6 @@ func TestMineTrace(t *testing.T) {
 	span.SetWinCount(2)
 	span.SetBlockCount(1)
 	span.Finish(nil)
+
+	time.Sleep(time.Second)
 }

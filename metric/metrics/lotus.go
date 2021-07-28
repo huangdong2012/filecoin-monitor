@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	prefixLotus = string(model.Role_Lotus)
+	prefixLotus = string(model.PackageKind_Lotus)
 )
 
 var (

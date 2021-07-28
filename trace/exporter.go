@@ -14,7 +14,7 @@ import (
 
 var (
 	exp = &Exporter{
-		metricFlag:      "metric",
+		metricName:      "metric",
 		metricSpanID:    "span_id",
 		metricStatus:    "status",
 		metricStartTime: "start_time",
@@ -23,32 +23,33 @@ var (
 )
 
 type Exporter struct {
-	metricFlag      string
+	metricName      string
 	metricSpanID    string
 	metricStatus    string
 	metricStartTime string
 	metricEndTime   string
 }
 
-// ExportSpan send to mq
+// ExportSpan send to kafka
 func (e *Exporter) ExportSpan(sd *trace.SpanData) {
 	var (
 		err  error
 		span *model.Span
 	)
-	if !spans.Verify(sd) {
+	if !options.ExportAll && !spans.IsLocalSpan(sd) {
 		return
 	}
 	if span, err = parseSpan(sd); err != nil {
-		utils.Error(fmt.Errorf("parse span data error: %v", err))
+		logger.WithField("err", err).Error("parse span data error")
 		return
-	}
-	if options.ExportSpan != nil {
-		options.ExportSpan(span)
+	} else {
+		if spanLogger != nil && options.ExportSpan == nil {
+			spanLogger.WithFields(utils.StructToMap(span)).Info("")
+		}
 	}
 	if spans.MetricEnable(span.Tags) && e.pushMetricEnable(span.Tags) {
 		if err = e.pushMetric(span); err != nil {
-			utils.Error(fmt.Errorf("trace exporter to metric error: %v", err.Error()))
+			logger.WithField("err", err).Error("span to metric error")
 		}
 	}
 }
@@ -73,7 +74,7 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 	if span.Tags == nil {
 		return nil
 	}
-	if name, ok = span.Tags[e.metricFlag]; !ok {
+	if name, ok = span.Tags[e.metricName]; !ok {
 		return nil
 	}
 
@@ -89,7 +90,7 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 
 	//此处使用了临时的metric(每次都重新创建)，因为: 该metric的label值每次都不同(span_id等)，
 	//导致MetricFamily里面的Metrics不断递增，数据被重复收集
-	gauge = e.newMetric(name, utils.GetKeys(span.Tags))
+	gauge = e.newMetric(name, utils.GetMapKeys(span.Tags))
 	gauge.With(labelValues).Set(span.Duration)
 	metric.NewScope().Add(gauge).Push()
 
@@ -97,7 +98,7 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 }
 
 func (e *Exporter) newMetric(name string, labels []string) *prometheus.GaugeVec {
-	gaugeName := fmt.Sprintf("%v_%v", string(model.GetBaseOptions().Role), name)
+	gaugeName := fmt.Sprintf("%v_%v", string(model.GetBaseOptions().PackageKind), name)
 	gaugeLbs := append(labels, e.metricSpanID, e.metricStatus, e.metricStartTime, e.metricEndTime)
 	return prometheus.NewGaugeVec(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName)), gaugeLbs)
 }
@@ -110,6 +111,7 @@ func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
 		ConstLabels: map[string]string{
 			"room_id":  strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
 			"instance": utils.IpAddr(),
+			"host_no":  model.GetBaseOptions().HostNo,
 			"miner_id": model.GetBaseOptions().MinerID,
 		},
 	}

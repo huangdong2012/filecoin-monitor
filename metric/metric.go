@@ -2,8 +2,10 @@ package metric
 
 import (
 	dto "github.com/prometheus/client_model/go"
+	"github.com/sirupsen/logrus"
 	"grandhelmsman/filecoin-monitor/metric/metrics"
 	"grandhelmsman/filecoin-monitor/model"
+	"grandhelmsman/filecoin-monitor/utils"
 	"time"
 )
 
@@ -13,6 +15,7 @@ const (
 
 var (
 	options *model.MetricOptions
+	logger  *logrus.Entry
 )
 
 func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
@@ -22,6 +25,14 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 	{
 		model.InitBaseOptions(baseOpt)
 		options = metricOpt
+		log, err := utils.CreateLog("", "monitor-metric", logrus.TraceLevel, true)
+		if err != nil {
+			panic(err)
+		}
+		logger = log.WithFields(logrus.Fields{
+			"room-id":  baseOpt.RoomID,
+			"miner-id": baseOpt.MinerID,
+		})
 		metrics.Init(wrapperGather.inner)
 	}
 

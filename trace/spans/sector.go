@@ -7,6 +7,7 @@ import (
 
 func NewSectorSpan(ctx context.Context) (context.Context, *SectorSpan) {
 	ct, span := setupSpan(ctx, "monitor-sector")
+	span.AddAttributes(trace.BoolAttribute(tagMetricEnable, true)) //导出metric
 	return ct, &SectorSpan{&StatusSpan{span}}
 }
 

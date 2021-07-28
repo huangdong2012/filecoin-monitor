@@ -8,6 +8,7 @@ import (
 
 func NewWindowPostSpan(ctx context.Context) (context.Context, *WindowPostSpan) {
 	ct, span := setupSpan(ctx, "monitor-wdpost")
+	span.AddAttributes(trace.BoolAttribute(tagMetricEnable, true)) //导出metric
 	return ct, &WindowPostSpan{&StatusSpan{span}}
 }
 

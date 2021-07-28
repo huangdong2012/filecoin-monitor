@@ -12,9 +12,8 @@ import (
 
 var (
 	opt = &model.BaseOptions{
-		Role:    model.Role_Lotus,
-		MinerID: "t01000",
-		MQUrl:   "amqp://root:root@localhost/",
+		PackageKind: model.PackageKind_Lotus,
+		MinerID:     "t01000",
 	}
 )
 
@@ -34,10 +33,7 @@ func setupMetric() http.Handler {
 //1.prometheus收集的方式
 func TestMetric1(t *testing.T) {
 	handler := setupMetric()
-	Init(opt, &model.MetricOptions{
-		Exchange: "zdz.exchange.metric",
-		RouteKey: "*",
-	})
+	Init(opt, &model.MetricOptions{})
 
 	go func() {
 		for range time.Tick(time.Second * 10) {
@@ -56,9 +52,6 @@ func TestMetric1(t *testing.T) {
 //2.主动push到push gateway的方式
 func TestMetric2(t *testing.T) {
 	Init(opt, &model.MetricOptions{
-		Exchange: "zdz.exchange.metric",
-		RouteKey: "*",
-
 		PushUrl:      "http://localhost:9091",
 		PushJob:      "test-job",
 		PushInterval: time.Second * 10,

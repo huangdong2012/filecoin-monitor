@@ -1,12 +1,12 @@
 package model
 
-type Role string
+type PackageKind string
 
 const (
-	Role_Lotus   Role = "lotus"
-	Role_Miner   Role = "miner"
-	Role_Worker  Role = "worker"
-	Role_Storage Role = "storage"
+	PackageKind_Lotus   PackageKind = "lotus"
+	PackageKind_Miner   PackageKind = "miner"
+	PackageKind_Worker  PackageKind = "worker"
+	PackageKind_Storage PackageKind = "storage"
 )
 
 type NodeStatus int32

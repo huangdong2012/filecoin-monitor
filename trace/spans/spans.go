@@ -10,12 +10,13 @@ import (
 
 const (
 	tagSetupKey     = "zdz"
-	tagMetricEnable = "metric-enable"
 	tagRoomID       = "room_id"
+	tagHostNo       = "host_no"
 	tagHostIP       = "host_ip"
 	tagMinerID      = "miner_id"
 	tagStatus       = "status"
 	tagMessage      = "message"
+	tagMetricEnable = "metric-enable"
 )
 
 var (
@@ -38,6 +39,7 @@ func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) 
 	ct, span := trace.StartSpan(ctx, name)
 	span.AddAttributes(trace.BoolAttribute(tagSetupKey, true))
 	span.AddAttributes(trace.Int64Attribute(tagRoomID, model.GetBaseOptions().RoomID))
+	span.AddAttributes(trace.StringAttribute(tagHostNo, model.GetBaseOptions().HostNo))
 	span.AddAttributes(trace.StringAttribute(tagHostIP, utils.IpAddr()))
 	span.AddAttributes(trace.StringAttribute(tagMinerID, model.GetBaseOptions().MinerID)) // 如：to1000
 	return ct, span
@@ -47,7 +49,7 @@ func startingSpan(span *trace.Span, msg string) {
 	span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Running)))
 	span.AddAttributes(trace.StringAttribute(tagMessage, msg))
 	if StartingHandler != nil {
-		if sd := makeSpanData(span); sd != nil {
+		if sd := span.Internal().MakeSpanData(); sd != nil {
 			StartingHandler(sd)
 		}
 	}
@@ -56,6 +58,7 @@ func startingSpan(span *trace.Span, msg string) {
 func finishSpan(span *trace.Span, err error) {
 	if err == nil {
 		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Finish)))
+		span.AddAttributes(trace.StringAttribute(tagMessage, ""))
 	} else {
 		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Error)))
 		span.AddAttributes(trace.StringAttribute(tagMessage, err.Error()))
@@ -67,24 +70,12 @@ func finishSpan(span *trace.Span, err error) {
 	span.End()
 }
 
-func makeSpanData(s *trace.Span) *trace.SpanData {
-	//todo...
-
-	return nil
-}
-
-func Verify(sd *trace.SpanData) bool {
-	for k, _ := range sd.Attributes {
-		if k == tagSetupKey {
-			return true
-		}
-	}
-	return false
+func IsLocalSpan(sd *trace.SpanData) bool {
+	_, ok := sd.Attributes[tagSetupKey]
+	return ok
 }
 
 func MetricEnable(tags map[string]string) bool {
-	if str, ok := tags[tagMetricEnable]; ok && strings.ToLower(str) == "false" {
-		return false
-	}
-	return true
+	str, ok := tags[tagMetricEnable]
+	return ok && strings.ToLower(str) == "true"
 }

@@ -3,18 +3,36 @@ package trace
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"go.opencensus.io/trace"
 	"grandhelmsman/filecoin-monitor/model"
 	"grandhelmsman/filecoin-monitor/trace/spans"
+	"grandhelmsman/filecoin-monitor/utils"
 )
 
 var (
-	options *model.TraceOptions
+	options    *model.TraceOptions
+	logger     *logrus.Entry
+	spanLogger *utils.Logger
 )
 
 func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	model.InitBaseOptions(baseOpt)
 	options = traceOpt
+
+	log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogTraceName, logrus.TraceLevel, true)
+	if err != nil {
+		panic(err)
+	}
+	logger = log.WithFields(logrus.Fields{
+		"room-id":  baseOpt.RoomID,
+		"miner-id": baseOpt.MinerID,
+	})
+
+	if len(options.SpanLogName) == 0 {
+		options.SpanLogDir = "monitor-spans"
+	}
+	spanLogger, err = utils.CreateLog(options.SpanLogDir, options.SpanLogName, logrus.TraceLevel, true)
 
 	trace.RegisterExporter(exp)
 	trace.ApplyConfig(trace.Config{
@@ -34,7 +52,7 @@ func parseSpan(sd *trace.SpanData) (*model.Span, error) {
 		ID:        sd.SpanID.String(),
 		ParentID:  sd.ParentSpanID.String(),
 		TraceID:   sd.TraceID.String(),
-		Service:   string(model.GetBaseOptions().Role),
+		Service:   string(model.GetBaseOptions().PackageKind),
 		Operation: sd.Name,
 		Tags:      make(map[string]string),
 		Logs:      make(map[string]string),

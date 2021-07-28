@@ -1,11 +1,9 @@
 package metric
 
 import (
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 	"grandhelmsman/filecoin-monitor/model"
-	"grandhelmsman/filecoin-monitor/utils"
 	"time"
 
 	dto "github.com/prometheus/client_model/go"
@@ -38,7 +36,7 @@ func (e *exporter) start() {
 		case <-time.After(options.PushInterval): //push all
 		case cols = <-e.pushColsC: //push cols
 		case <-e.exitC:
-			utils.Info("metrics exporter exit loop")
+			logger.Info("exporter exit loop")
 			return
 		}
 
@@ -46,7 +44,7 @@ func (e *exporter) start() {
 			reg := prometheus.NewRegistry()
 			for _, c := range cols {
 				if err = reg.Register(c); err != nil {
-					utils.Error(fmt.Errorf("metrics exporter register error:%v", err.Error()))
+					logger.WithField("err", err).Error("exporter register error")
 				}
 			}
 			gatherToMQ = reg
@@ -55,12 +53,12 @@ func (e *exporter) start() {
 
 		//send to mq
 		if err := e.export(gatherToMQ); err != nil {
-			utils.Error(fmt.Errorf("metrics exporter gather inner metrics error: %v", err.Error()))
+			logger.WithField("err", err).Error("exporter gather inner metrics error")
 		}
 		//send to push-gateway
 		if len(options.PushUrl) > 0 {
 			if err := push.New(options.PushUrl, options.PushJob).Gatherer(gatherToProm).Push(); err != nil {
-				utils.Error(fmt.Errorf("metrics exporter push error:%v", err.Error()))
+				logger.WithField("err", err).Error("exporter push error")
 			}
 		}
 	}

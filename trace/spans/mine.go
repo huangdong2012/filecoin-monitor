@@ -7,6 +7,7 @@ import (
 
 func NewMineSpan(ctx context.Context) (context.Context, *MineSpan) {
 	ct, span := setupSpan(ctx, "monitor-wining")
+	span.AddAttributes(trace.BoolAttribute(tagMetricEnable, true)) //导出metric
 	return ct, &MineSpan{&StatusSpan{span}}
 }
 
