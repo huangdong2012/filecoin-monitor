@@ -30,7 +30,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	})
 
 	if len(options.SpanLogName) == 0 {
-		options.SpanLogDir = "monitor-spans"
+		options.SpanLogName = "monitor-span"
 	}
 	spanLogger, err = utils.CreateLog(options.SpanLogDir, options.SpanLogName, logrus.TraceLevel, true)
 
