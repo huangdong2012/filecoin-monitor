@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"grandhelmsman/filecoin-monitor/model"
+	"huangdong2012/filecoin-monitor/model"
 )
 
 const (

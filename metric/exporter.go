@@ -3,7 +3,7 @@ package metric
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
-	"grandhelmsman/filecoin-monitor/model"
+	"huangdong2012/filecoin-monitor/model"
 	"time"
 
 	dto "github.com/prometheus/client_model/go"

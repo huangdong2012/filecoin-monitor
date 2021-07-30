@@ -3,9 +3,9 @@ package metric
 import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
-	"grandhelmsman/filecoin-monitor/metric/metrics"
-	"grandhelmsman/filecoin-monitor/model"
-	"grandhelmsman/filecoin-monitor/utils"
+	"huangdong2012/filecoin-monitor/metric/metrics"
+	"huangdong2012/filecoin-monitor/model"
+	"huangdong2012/filecoin-monitor/utils"
 	"time"
 )
 

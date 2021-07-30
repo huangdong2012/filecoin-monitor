@@ -3,8 +3,8 @@ package metric
 import (
 	"contrib.go.opencensus.io/exporter/prometheus"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"grandhelmsman/filecoin-monitor/metric/metrics"
-	"grandhelmsman/filecoin-monitor/model"
+	"huangdong2012/filecoin-monitor/metric/metrics"
+	"huangdong2012/filecoin-monitor/model"
 	"net/http"
 	"testing"
 	"time"
