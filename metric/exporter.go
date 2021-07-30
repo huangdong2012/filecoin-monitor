@@ -52,9 +52,12 @@ func (e *exporter) start() {
 		}
 
 		//send to mq
-		if err := e.export(gatherToMQ); err != nil {
-			logger.WithField("err", err).Error("exporter gather inner metrics error")
+		if options.ExportMetric != nil {
+			if err := e.export(gatherToMQ); err != nil {
+				logger.WithField("err", err).Error("exporter gather inner metrics error")
+			}
 		}
+
 		//send to push-gateway
 		if len(options.PushUrl) > 0 {
 			if err := push.New(options.PushUrl, options.PushJob).Gatherer(gatherToProm).Push(); err != nil {

@@ -36,7 +36,7 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 		metrics.Init(wrapperGather.inner)
 	}
 
-	//默认启用push-gateway主动上报的方式,如果配置了gather(prometheus主动收集)则停止主动上报
+	// 如果配置了gather(prometheus主动收集)则停止主动上报
 	go exp.start()
 }
 

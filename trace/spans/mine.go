@@ -19,8 +19,8 @@ func (s *MineSpan) SetEpoch(epoch int64) {
 	s.AddAttributes(trace.Int64Attribute("epoch", epoch))
 }
 
-func (s *MineSpan) SetEligible(eligible int64) {
-	s.AddAttributes(trace.Int64Attribute("eligible", eligible))
+func (s *MineSpan) SetEligible(eligible bool) {
+	s.AddAttributes(trace.BoolAttribute("eligible", eligible))
 }
 
 func (s *MineSpan) SetBeacon(beacon string) {
@@ -51,6 +51,6 @@ func (s *MineSpan) SetBlockCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("block_count", int64(count)))
 }
 
-func (s *MineSpan) SetBaseInfoDuration(duration int) {
-	s.AddAttributes(trace.Int64Attribute("baseinfo_duration", int64(duration)))
+func (s *MineSpan) SetBaseInfoDuration(duration int64) {
+	s.AddAttributes(trace.Int64Attribute("baseinfo_duration", duration))
 }
