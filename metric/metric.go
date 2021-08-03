@@ -40,6 +40,7 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 
 	// 如果配置了gather(prometheus主动收集)则停止主动上报
 	go exp.start()
+	logger.Info("monitor-metric starting...")
 }
 
 func Push() {

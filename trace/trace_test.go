@@ -26,7 +26,7 @@ var (
 )
 
 func setupTrace() {
-	agentEndpointURI := os.Getenv("LOTUS_JAEGER")
+	agentEndpointURI := os.Getenv("LOTUS_JAEGER_AGENT_ENDPOINT")
 	if len(agentEndpointURI) == 0 {
 		panic("jaeger agent endpoint url invalid")
 	}
@@ -89,10 +89,10 @@ func TestMineTrace(t *testing.T) {
 	setupTrace()
 
 	_, span := spans.NewMineSpan(context.Background())
-	span.SetEpoch(1000)
+	span.SetEpoch(10)
 	span.Starting("")
 
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 3)
 	span.SetBeacon("this is beacon")
 	span.SetTotalPower("total power")
 	span.SetMinerPower("miner power")
@@ -100,5 +100,5 @@ func TestMineTrace(t *testing.T) {
 	span.SetBlockCount(1)
 	span.Finish(nil)
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 2)
 }

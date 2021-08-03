@@ -9,6 +9,7 @@ import (
 	"huangdong2012/filecoin-monitor/trace/spans"
 	"huangdong2012/filecoin-monitor/utils"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -69,50 +70,58 @@ func (e *Exporter) pushMetric(span *model.Span) error {
 	var (
 		ok    bool
 		name  string
-		gauge *prometheus.GaugeVec
+		gauge prometheus.Gauge
 	)
 	if span.Tags == nil {
 		return nil
 	}
 	if name, ok = span.Tags[e.metricName]; !ok {
-		return nil
+		name = span.Operation
 	}
 
-	labelValues := map[string]string{
+	kvs := map[string]string{
 		e.metricSpanID:    span.ID,
 		e.metricStatus:    fmt.Sprintf("%v", span.Status),
 		e.metricStartTime: utils.TimeFormat(time.Unix(span.StartTime, 0)),
 		e.metricEndTime:   utils.TimeFormat(time.Unix(span.EndTime, 0)),
 	}
 	for k, v := range span.Tags {
-		labelValues[k] = v
+		kvs[k] = v
 	}
 
 	//此处使用了临时的metric(每次都重新创建)，因为: 该metric的label值每次都不同(span_id等)，
 	//导致MetricFamily里面的Metrics不断递增，数据被重复收集
-	gauge = e.newMetric(name, utils.GetMapKeys(span.Tags))
-	gauge.With(labelValues).Set(span.Duration)
+	gauge = e.newMetric(name, kvs)
+	gauge.Set(span.Duration)
 	metric.NewScope().Add(gauge).Push()
 
 	return nil
 }
 
-func (e *Exporter) newMetric(name string, labels []string) *prometheus.GaugeVec {
+func (e *Exporter) newMetric(name string, labels map[string]string) prometheus.Gauge {
 	gaugeName := fmt.Sprintf("%v_%v", string(model.GetBaseOptions().PackageKind), name)
-	gaugeLbs := append(labels, e.metricSpanID, e.metricStatus, e.metricStartTime, e.metricEndTime)
-	return prometheus.NewGaugeVec(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName)), gaugeLbs)
+	gaugeName = strings.ReplaceAll(gaugeName, "-", "_")
+	kvs := make(map[string]string)
+	for k, v := range labels {
+		kvs[strings.ReplaceAll(k, "-", "_")] = v
+	}
+	return prometheus.NewGauge(prometheus.GaugeOpts(e.setupMetricOptions(gaugeName, kvs)))
 }
 
-func (e *Exporter) setupMetricOptions(name string) prometheus.Opts {
+func (e *Exporter) setupMetricOptions(name string, kvs map[string]string) prometheus.Opts {
+	labels := map[string]string{
+		"room_id":  strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
+		"instance": utils.IpAddr(),
+		"host_no":  model.GetBaseOptions().HostNo,
+		"miner_id": model.GetBaseOptions().MinerID,
+	}
+	for k, v := range kvs {
+		labels[k] = v
+	}
 	return prometheus.Opts{
-		Namespace: "zdz",
-		Name:      name,
-		Help:      "from span",
-		ConstLabels: map[string]string{
-			"room_id":  strconv.FormatInt(model.GetBaseOptions().RoomID, 10),
-			"instance": utils.IpAddr(),
-			"host_no":  model.GetBaseOptions().HostNo,
-			"miner_id": model.GetBaseOptions().MinerID,
-		},
+		Namespace:   "zdz",
+		Name:        name,
+		Help:        "from span",
+		ConstLabels: labels,
 	}
 }

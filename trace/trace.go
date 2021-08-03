@@ -42,6 +42,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 
 	//starting-handler
 	spans.StartingHandler = exp.ExportSpan
+	logger.Info("monitor-trace starting...")
 }
 
 func parseSpan(sd *trace.SpanData) (*model.Span, error) {
