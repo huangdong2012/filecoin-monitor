@@ -43,3 +43,11 @@ func (s *WindowPostSpan) SetOpenTime(ot time.Time) {
 func (s *WindowPostSpan) SetCloseTime(ct time.Time) {
 	s.AddAttributes(trace.Int64Attribute("close_time", ct.Unix()))
 }
+
+func (s *WindowPostSpan) SetHeight(h int64) {
+	s.AddAttributes(trace.Int64Attribute("height", h))
+}
+
+func (s *WindowPostSpan) SetRand(r string) {
+	s.AddAttributes(trace.StringAttribute("rand", r))
+}
