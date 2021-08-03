@@ -16,30 +16,30 @@ type WindowPostSpan struct {
 	*StatusSpan
 }
 
-func (s *SectorSpan) SetDeadline(deadline int) {
+func (s *WindowPostSpan) SetDeadline(deadline int) {
 	s.AddAttributes(trace.Int64Attribute("deadline", int64(deadline)))
 }
 
-func (s *SectorSpan) SetPartitions(partitions string) {
+func (s *WindowPostSpan) SetPartitions(partitions string) {
 	s.AddAttributes(trace.StringAttribute("partitions", partitions))
 }
 
-func (s *SectorSpan) SetPartitionCount(count int) {
+func (s *WindowPostSpan) SetPartitionCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("partition_count", int64(count)))
 }
 
-func (s *SectorSpan) SetSectorCount(count int) {
+func (s *WindowPostSpan) SetSectorCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("sector_count", int64(count)))
 }
 
-func (s *SectorSpan) SetSkipCount(count int) {
+func (s *WindowPostSpan) SetSkipCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("skip_count", int64(count)))
 }
 
-func (s *SectorSpan) SetOpenTime(ot time.Time) {
+func (s *WindowPostSpan) SetOpenTime(ot time.Time) {
 	s.AddAttributes(trace.Int64Attribute("open_time", ot.Unix()))
 }
 
-func (s *SectorSpan) SetCloseTime(ct time.Time) {
+func (s *WindowPostSpan) SetCloseTime(ct time.Time) {
 	s.AddAttributes(trace.Int64Attribute("close_time", ct.Unix()))
 }
