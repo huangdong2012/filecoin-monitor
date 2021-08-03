@@ -55,26 +55,26 @@ func NewLogger(path string, level logrus.Level, stdout bool) (*Logger, error) {
 }
 
 func getLogDir(dir string) (string, error) {
-	if len(dir) == 0 {
-		dir = "/logs/"
-	}
-	if !strings.HasPrefix(dir, "/") {
-		dir = "/" + dir
+	if len(dir) == 0 { //默认路径->相对路径
+		dir = "logs/"
 	}
 	if !strings.HasSuffix(dir, "/") {
 		dir = dir + "/"
 	}
-	file, err := filepath.Abs(os.Args[0])
-	if err != nil {
-		return "", err
+	if !strings.HasPrefix(dir, "/") { //相对路径->绝对路径
+		file, err := filepath.Abs(os.Args[0])
+		if err != nil {
+			return "", err
+		}
+		dir = filepath.Dir(filepath.Dir(file)+"..") + "/" + dir
 	}
-	logDir := filepath.Dir(filepath.Dir(file)+"..") + dir
-	if !PathExist(logDir) {
-		if err = os.MkdirAll(logDir, os.ModePerm); err != nil {
+
+	if !PathExist(dir) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			return "", err
 		}
 	}
-	return logDir, nil
+	return dir, nil
 }
 
 func getLogName(name string) string {

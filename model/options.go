@@ -22,7 +22,7 @@ func InitBaseOptions(baseOpt *BaseOptions) {
 			baseOpt.LogTraceName = "monitor-trace"
 		}
 		if len(baseOpt.LogMetricName) == 0 {
-			baseOpt.LogTraceName = "monitor-metric"
+			baseOpt.LogMetricName = "monitor-metric"
 		}
 		base = baseOpt
 	})

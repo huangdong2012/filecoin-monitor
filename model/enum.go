@@ -7,6 +7,7 @@ const (
 	PackageKind_Miner   PackageKind = "miner"
 	PackageKind_Worker  PackageKind = "worker"
 	PackageKind_Storage PackageKind = "storage"
+	PackageKind_Agent   PackageKind = "agent"
 )
 
 type NodeStatus int32

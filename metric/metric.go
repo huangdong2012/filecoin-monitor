@@ -25,14 +25,16 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 	{
 		model.InitBaseOptions(baseOpt)
 		options = metricOpt
-		log, err := utils.CreateLog("", "monitor-metric", logrus.TraceLevel, true)
+		log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogMetricName, logrus.TraceLevel, true)
 		if err != nil {
 			panic(err)
 		}
-		logger = log.WithFields(logrus.Fields{
-			"room-id":  baseOpt.RoomID,
-			"miner-id": baseOpt.MinerID,
-		})
+		fields := logrus.Fields{"room-id": baseOpt.RoomID}
+		if len(baseOpt.MinerID) > 0 {
+			fields["miner-id"] = baseOpt.MinerID
+		}
+		logger = log.WithFields(fields)
+
 		metrics.Init(wrapperGather.inner)
 	}
 

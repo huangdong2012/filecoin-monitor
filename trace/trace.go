@@ -24,10 +24,11 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	if err != nil {
 		panic(err)
 	}
-	logger = log.WithFields(logrus.Fields{
-		"room-id":  baseOpt.RoomID,
-		"miner-id": baseOpt.MinerID,
-	})
+	fields := logrus.Fields{"room-id": baseOpt.RoomID}
+	if len(baseOpt.MinerID) > 0 {
+		fields["miner-id"] = baseOpt.MinerID
+	}
+	logger = log.WithFields(fields)
 
 	if len(options.SpanLogName) == 0 {
 		options.SpanLogName = "monitor-span"
