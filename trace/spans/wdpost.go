@@ -44,6 +44,10 @@ func (s *WindowPostSpan) SetCloseTime(ct time.Time) {
 	s.AddAttributes(trace.Int64Attribute("close_time", ct.Unix()))
 }
 
+func (s *WindowPostSpan) SetGenerateElapsed(elapsed int64) {
+	s.AddAttributes(trace.Int64Attribute("generate_elapsed", elapsed))
+}
+
 func (s *WindowPostSpan) SetHeight(h int64) {
 	s.AddAttributes(trace.Int64Attribute("height", h))
 }
