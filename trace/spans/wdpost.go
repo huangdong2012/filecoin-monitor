@@ -3,7 +3,6 @@ package spans
 import (
 	"context"
 	"go.opencensus.io/trace"
-	"time"
 )
 
 func NewWindowPostSpan(ctx context.Context) (context.Context, *WindowPostSpan) {
@@ -36,12 +35,12 @@ func (s *WindowPostSpan) SetSkipCount(count int) {
 	s.AddAttributes(trace.Int64Attribute("skip_count", int64(count)))
 }
 
-func (s *WindowPostSpan) SetOpenTime(ot time.Time) {
-	s.AddAttributes(trace.Int64Attribute("open_time", ot.Unix()))
+func (s *WindowPostSpan) SetOpenEpoch(oe int64) {
+	s.AddAttributes(trace.Int64Attribute("open_epoch", oe))
 }
 
-func (s *WindowPostSpan) SetCloseTime(ct time.Time) {
-	s.AddAttributes(trace.Int64Attribute("close_time", ct.Unix()))
+func (s *WindowPostSpan) SetCloseEpoch(ce int64) {
+	s.AddAttributes(trace.Int64Attribute("close_epoch", ce))
 }
 
 func (s *WindowPostSpan) SetGenerateElapsed(elapsed int64) {
