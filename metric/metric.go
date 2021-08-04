@@ -25,7 +25,7 @@ func Init(baseOpt *model.BaseOptions, metricOpt *model.MetricOptions) {
 	{
 		model.InitBaseOptions(baseOpt)
 		options = metricOpt
-		log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogMetricName, logrus.TraceLevel, true)
+		log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogMetricName, logrus.TraceLevel, baseOpt.LogToStdout)
 		if err != nil {
 			panic(err)
 		}

@@ -15,8 +15,12 @@ type SectorSpan struct {
 	*StatusSpan
 }
 
-func (s *SectorSpan) SetNumber(num int64) {
-	s.AddAttributes(trace.Int64Attribute("number", num))
+func (s *SectorSpan) SetID(id string) {
+	s.AddAttributes(trace.StringAttribute("id", id))
+}
+
+func (s *SectorSpan) SetMinerID(mid string) {
+	s.AddAttributes(trace.StringAttribute("miner_id", mid))
 }
 
 // 2K/8M/512M/32G/64G
@@ -45,6 +49,14 @@ func (s *SectorSpan) SetStep(step string) {
 
 func (s *SectorSpan) SetPath(path string) {
 	s.AddAttributes(trace.StringAttribute("path", path))
+}
+
+func (s *SectorSpan) SetSealedStorageID(id string) {
+	s.AddAttributes(trace.StringAttribute("sealed_storage_id", id))
+}
+
+func (s *SectorSpan) SetUnSealedStorageID(id string) {
+	s.AddAttributes(trace.StringAttribute("unsealed_storage_id", id))
 }
 
 func (s *SectorSpan) SetWorkIP(ip string) {

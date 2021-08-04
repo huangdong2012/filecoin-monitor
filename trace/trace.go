@@ -20,7 +20,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	model.InitBaseOptions(baseOpt)
 	options = traceOpt
 
-	log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogTraceName, logrus.TraceLevel, true)
+	log, err := utils.CreateLog(baseOpt.LogDir, baseOpt.LogTraceName, logrus.TraceLevel, baseOpt.LogToStdout)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +33,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	if len(options.SpanLogName) == 0 {
 		options.SpanLogName = "monitor-span"
 	}
-	spanLogger, err = utils.CreateLog(options.SpanLogDir, options.SpanLogName, logrus.TraceLevel, true)
+	spanLogger, err = utils.CreateLog(options.SpanLogDir, options.SpanLogName, logrus.TraceLevel, baseOpt.LogToStdout)
 
 	trace.RegisterExporter(exp)
 	trace.ApplyConfig(trace.Config{

@@ -41,11 +41,12 @@ type BaseOptions struct {
 	LogDir        string //日志文件夹名称
 	LogTraceName  string //trace日志文件名
 	LogMetricName string //metric日志文件名
+	LogToStdout   bool   //日志是否输出到屏幕
 }
 
 type TraceOptions struct {
-	ExportAll      bool //true: 导出所有的span  false: 只导出monitor定义的span
-	ExportSpan     func(span *Span)
+	ExportAll  bool //true: 导出所有的span  false: 只导出monitor定义的span
+	ExportSpan func(span *Span)
 
 	SpanLogDir  string
 	SpanLogName string
@@ -56,5 +57,5 @@ type MetricOptions struct {
 	PushJob      string        //push-gateway job name
 	PushInterval time.Duration //上报metric间隔
 
-	ExportMetric   func(metrics []*Metric)
+	ExportMetric func(metrics []*Metric)
 }
