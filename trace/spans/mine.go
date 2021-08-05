@@ -27,12 +27,12 @@ func (s *MineSpan) SetEligible(eligible bool) {
 	s.AddAttributes(trace.BoolAttribute("eligible", eligible))
 }
 
-func (s *MineSpan) SetLookbackEpoch(epoch string) {
-	s.AddAttributes(trace.StringAttribute("lookback_epoch", epoch))
+func (s *MineSpan) SetLookbackEpoch(epoch int64) {
+	s.AddAttributes(trace.Int64Attribute("lookback_epoch", epoch))
 }
 
-func (s *MineSpan) SetBaseEpoch(epoch string) {
-	s.AddAttributes(trace.StringAttribute("base_epoch", epoch))
+func (s *MineSpan) SetBaseEpoch(epoch int64) {
+	s.AddAttributes(trace.Int64Attribute("base_epoch", epoch))
 }
 
 func (s *MineSpan) SetBaseDeltaSeconds(bdf float64) {
