@@ -37,12 +37,22 @@ func (s *StatusSpan) Finish(err error) {
 
 func setupSpan(ctx context.Context, name string) (context.Context, *trace.Span) {
 	ct, span := trace.StartSpan(ctx, name)
+	initSpan(span)
+	return ct, span
+}
+
+func setupSubSpan(spCtx *trace.SpanContext, name string) (context.Context, *trace.Span) {
+	ct, span := trace.StartSpanWithRemoteParent(context.Background(), name, *spCtx)
+	initSpan(span)
+	return ct, span
+}
+
+func initSpan(span *trace.Span) {
 	span.AddAttributes(trace.BoolAttribute(tagSetupKey, true))
 	span.AddAttributes(trace.Int64Attribute(tagRoomID, model.GetBaseOptions().RoomID))
 	span.AddAttributes(trace.StringAttribute(tagHostNo, model.GetBaseOptions().HostNo))
 	span.AddAttributes(trace.StringAttribute(tagHostIP, utils.IpAddr()))
 	span.AddAttributes(trace.StringAttribute(tagMinerID, model.GetBaseOptions().MinerID)) // 如：to1000
-	return ct, span
 }
 
 func startingSpan(span *trace.Span, msg string) {

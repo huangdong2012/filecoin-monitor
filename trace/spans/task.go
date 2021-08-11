@@ -5,8 +5,12 @@ import (
 	"go.opencensus.io/trace"
 )
 
-func NewTaskSpan(ctx context.Context) (context.Context, *TaskSpan) {
-	ct, span := setupSpan(ctx, "monitor-task")
+func NewTaskSpan(spCtx *trace.SpanContext) (context.Context, *TaskSpan) {
+	name := "monitor-task"
+	ct, span := setupSpan(context.Background(), name)
+	if spCtx != nil {
+		ct, span = setupSubSpan(spCtx, name)
+	}
 	span.AddAttributes(trace.BoolAttribute(tagMetricEnable, true)) //导出metric
 	return ct, &TaskSpan{&StatusSpan{span}}
 }
@@ -29,4 +33,16 @@ func (s *TaskSpan) SetWorkIP(ip string) {
 
 func (s *TaskSpan) SetWorkNo(no string) {
 	s.AddAttributes(trace.StringAttribute("work_no", no))
+}
+
+func (s *TaskSpan) SetMaxTaskCount(count int64) {
+	s.AddAttributes(trace.Int64Attribute("max_task_count", count))
+}
+
+func (s *TaskSpan) SetWindowPostEnable(enable bool) {
+	s.AddAttributes(trace.BoolAttribute("window_post_enable", enable))
+}
+
+func (s *TaskSpan) SetWinningPostEnable(enable bool) {
+	s.AddAttributes(trace.BoolAttribute("winning_post_enable", enable))
 }
