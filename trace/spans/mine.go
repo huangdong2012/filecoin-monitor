@@ -78,11 +78,3 @@ func (s *MineSpan) SetBaseInfoNil(isNil bool) {
 func (s *MineSpan) SetBaseInfoDuration(duration int64) {
 	s.AddAttributes(trace.Int64Attribute("baseinfo_duration", duration))
 }
-
-func (s *MineSpan) SetWorkIP(ip string) {
-	s.AddAttributes(trace.StringAttribute("work_ip", ip))
-}
-
-func (s *MineSpan) SetWorkNo(no string) {
-	s.AddAttributes(trace.StringAttribute("work_no", no))
-}
