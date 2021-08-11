@@ -54,3 +54,7 @@ func (s *WindowPostSpan) SetHeight(h int64) {
 func (s *WindowPostSpan) SetRand(r string) {
 	s.AddAttributes(trace.StringAttribute("rand", r))
 }
+
+func (s *WindowPostSpan) SetWorkerEnable(enable bool) {
+	s.AddAttributes(trace.BoolAttribute("worker_enable", enable))
+}
