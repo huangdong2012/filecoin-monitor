@@ -89,7 +89,7 @@ func TestMineTrace(t *testing.T) {
 	setupTrace()
 
 	_, span := spans.NewMineSpan(context.Background())
-	span.SetEpoch(10)
+	span.SetRound(10)
 	span.Starting("")
 
 	time.Sleep(time.Second * 3)

@@ -54,3 +54,11 @@ func (s *WindowPostSpan) SetHeight(h int64) {
 func (s *WindowPostSpan) SetRand(r string) {
 	s.AddAttributes(trace.StringAttribute("rand", r))
 }
+
+func (s *WindowPostSpan) SetWorkIP(ip string) {
+	s.AddAttributes(trace.StringAttribute("work_ip", ip))
+}
+
+func (s *WindowPostSpan) SetWorkNo(no string) {
+	s.AddAttributes(trace.StringAttribute("work_no", no))
+}
