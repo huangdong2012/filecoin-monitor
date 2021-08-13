@@ -31,7 +31,7 @@ func Init(baseOpt *model.BaseOptions, traceOpt *model.TraceOptions) {
 	logger = log.WithFields(fields)
 
 	if len(options.SpanLogName) == 0 {
-		options.SpanLogName = "monitor-span"
+		options.SpanLogName = fmt.Sprintf("%v.monitor-span", string(baseOpt.PackageKind))
 	}
 	spanLogger, err = utils.CreateLog(options.SpanLogDir, options.SpanLogName, logrus.TraceLevel, baseOpt.LogToStdout)
 

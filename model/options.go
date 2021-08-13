@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -19,10 +20,10 @@ func InitBaseOptions(baseOpt *BaseOptions) {
 			panic("miner-id invalid")
 		}
 		if len(baseOpt.LogTraceName) == 0 {
-			baseOpt.LogTraceName = "monitor-trace"
+			baseOpt.LogTraceName = fmt.Sprintf("%v.monitor-trace", string(baseOpt.PackageKind))
 		}
 		if len(baseOpt.LogMetricName) == 0 {
-			baseOpt.LogMetricName = "monitor-metric"
+			baseOpt.LogMetricName = fmt.Sprintf("%v.monitor-metric", string(baseOpt.PackageKind))
 		}
 		base = baseOpt
 	})
