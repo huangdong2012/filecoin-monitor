@@ -59,6 +59,10 @@ func (s *SectorSpan) SetUnSealedStorageID(id string) {
 	s.AddAttributes(trace.StringAttribute("unsealed_storage_id", id))
 }
 
+func (s *SectorSpan) SetErrorCount(count int) {
+	s.AddAttributes(trace.Int64Attribute("error_count", int64(count)))
+}
+
 func (s *SectorSpan) SetWorkIP(ip string) {
 	s.AddAttributes(trace.StringAttribute("work_ip", ip))
 }
