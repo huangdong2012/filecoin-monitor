@@ -55,6 +55,10 @@ func (s *WindowPostSpan) SetRand(r string) {
 	s.AddAttributes(trace.StringAttribute("rand", r))
 }
 
+func (s *WindowPostSpan) SetErrorCount(count int) {
+	s.AddAttributes(trace.Int64Attribute("error_count", int64(count)))
+}
+
 func (s *WindowPostSpan) SetWorkerEnable(enable bool) {
 	s.AddAttributes(trace.BoolAttribute("worker_enable", enable))
 }
