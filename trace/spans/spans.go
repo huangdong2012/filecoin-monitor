@@ -32,8 +32,8 @@ func (s *StatusSpan) Starting(msg string) {
 	startingSpan(s.Span, msg)
 }
 
-func (s *StatusSpan) Process() {
-	processSpan(s.Span)
+func (s *StatusSpan) Process(name string) {
+	processSpan(s.Span, name)
 }
 
 func (s *StatusSpan) Finish(err error) {
@@ -61,7 +61,7 @@ func initSpan(span *trace.Span) {
 }
 
 func startingSpan(span *trace.Span, msg string) {
-	span.AddAttributes(trace.BoolAttribute(tagProcess, false))
+	span.AddAttributes(trace.StringAttribute(tagProcess, ""))
 	span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Running)))
 	span.AddAttributes(trace.StringAttribute(tagMessage, msg))
 	if ExportHandler != nil {
@@ -71,8 +71,8 @@ func startingSpan(span *trace.Span, msg string) {
 	}
 }
 
-func processSpan(span *trace.Span) {
-	span.AddAttributes(trace.BoolAttribute(tagProcess, true))
+func processSpan(span *trace.Span, name string) {
+	span.AddAttributes(trace.StringAttribute(tagProcess, name))
 	if ExportHandler != nil {
 		if sd := span.Internal().MakeSpanData(); sd != nil {
 			ExportHandler(sd)
@@ -81,7 +81,7 @@ func processSpan(span *trace.Span) {
 }
 
 func finishSpan(span *trace.Span, err error) {
-	span.AddAttributes(trace.BoolAttribute(tagProcess, false))
+	span.AddAttributes(trace.StringAttribute(tagProcess, ""))
 	if err == nil {
 		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Finish)))
 		span.AddAttributes(trace.StringAttribute(tagMessage, ""))
