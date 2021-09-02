@@ -2,10 +2,12 @@ package spans
 
 import (
 	"context"
+	"fmt"
 	"go.opencensus.io/trace"
 	"huangdong2012/filecoin-monitor/model"
 	"huangdong2012/filecoin-monitor/utils"
 	"strings"
+	"time"
 )
 
 const (
@@ -71,8 +73,15 @@ func startingSpan(span *trace.Span, msg string) {
 	}
 }
 
-func processSpan(span *trace.Span, name string) {
+func processSpan(span *trace.Span, name, msg string) {
+	if len(name) == 0 {
+		return
+	}
 	span.AddAttributes(trace.StringAttribute(tagProcess, name))
+	span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_time", name), time.Now().String()))
+	if len(msg) > 0 {
+		span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_msg", name), msg))
+	}
 	if ExportHandler != nil {
 		if sd := span.Internal().MakeSpanData(); sd != nil {
 			ExportHandler(sd)
