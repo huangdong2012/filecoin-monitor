@@ -34,8 +34,8 @@ func (s *StatusSpan) Starting(msg string) {
 	startingSpan(s.Span, msg)
 }
 
-func (s *StatusSpan) Process(name string) {
-	processSpan(s.Span, name)
+func (s *StatusSpan) Process(name, msg string) {
+	processSpan(s.Span, name, msg)
 }
 
 func (s *StatusSpan) Finish(err error) {
