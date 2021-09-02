@@ -15,6 +15,7 @@ const (
 	tagHostIP       = "host_ip"
 	tagMinerID      = "miner_id"
 	tagStatus       = "status"
+	tagProcess      = "process"
 	tagMessage      = "message"
 	tagMetricEnable = "metric-enable"
 )
@@ -31,8 +32,8 @@ func (s *StatusSpan) Starting(msg string) {
 	startingSpan(s.Span, msg)
 }
 
-func (s *StatusSpan) Process(status int, msg string) {
-	processSpan(s.Span, status, msg)
+func (s *StatusSpan) Process() {
+	processSpan(s.Span)
 }
 
 func (s *StatusSpan) Finish(err error) {
@@ -60,6 +61,7 @@ func initSpan(span *trace.Span) {
 }
 
 func startingSpan(span *trace.Span, msg string) {
+	span.AddAttributes(trace.BoolAttribute(tagProcess, false))
 	span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Running)))
 	span.AddAttributes(trace.StringAttribute(tagMessage, msg))
 	if ExportHandler != nil {
@@ -69,9 +71,8 @@ func startingSpan(span *trace.Span, msg string) {
 	}
 }
 
-func processSpan(span *trace.Span, status int, msg string) {
-	span.AddAttributes(trace.Int64Attribute("process-status", int64(status)))
-	span.AddAttributes(trace.StringAttribute("process-message", msg))
+func processSpan(span *trace.Span) {
+	span.AddAttributes(trace.BoolAttribute(tagProcess, true))
 	if ExportHandler != nil {
 		if sd := span.Internal().MakeSpanData(); sd != nil {
 			ExportHandler(sd)
@@ -80,6 +81,7 @@ func processSpan(span *trace.Span, status int, msg string) {
 }
 
 func finishSpan(span *trace.Span, err error) {
+	span.AddAttributes(trace.BoolAttribute(tagProcess, false))
 	if err == nil {
 		span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Finish)))
 		span.AddAttributes(trace.StringAttribute(tagMessage, ""))
