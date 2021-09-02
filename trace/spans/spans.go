@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	StartingHandler func(sd *trace.SpanData)
+	ExportHandler func(sd *trace.SpanData)
 )
 
 type StatusSpan struct {
@@ -29,6 +29,10 @@ type StatusSpan struct {
 
 func (s *StatusSpan) Starting(msg string) {
 	startingSpan(s.Span, msg)
+}
+
+func (s *StatusSpan) Process(status int, msg string) {
+	processSpan(s.Span, status, msg)
 }
 
 func (s *StatusSpan) Finish(err error) {
@@ -58,9 +62,19 @@ func initSpan(span *trace.Span) {
 func startingSpan(span *trace.Span, msg string) {
 	span.AddAttributes(trace.Int64Attribute(tagStatus, int64(model.TaskStatus_Running)))
 	span.AddAttributes(trace.StringAttribute(tagMessage, msg))
-	if StartingHandler != nil {
+	if ExportHandler != nil {
 		if sd := span.Internal().MakeSpanData(); sd != nil {
-			StartingHandler(sd)
+			ExportHandler(sd)
+		}
+	}
+}
+
+func processSpan(span *trace.Span, status int, msg string) {
+	span.AddAttributes(trace.Int64Attribute("process-status", int64(status)))
+	span.AddAttributes(trace.StringAttribute("process-message", msg))
+	if ExportHandler != nil {
+		if sd := span.Internal().MakeSpanData(); sd != nil {
+			ExportHandler(sd)
 		}
 	}
 }
