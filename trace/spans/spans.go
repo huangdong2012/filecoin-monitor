@@ -6,6 +6,7 @@ import (
 	"go.opencensus.io/trace"
 	"huangdong2012/filecoin-monitor/model"
 	"huangdong2012/filecoin-monitor/utils"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -78,7 +79,7 @@ func processSpan(span *trace.Span, name, msg string) {
 		return
 	}
 	span.AddAttributes(trace.StringAttribute(tagProcess, name))
-	span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_time", name), time.Now().String()))
+	span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_time", name), strconv.FormatInt(time.Now().Unix(), 64)))
 	if len(msg) > 0 {
 		span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_msg", name), msg))
 	}
