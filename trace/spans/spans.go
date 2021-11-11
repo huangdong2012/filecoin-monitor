@@ -79,7 +79,7 @@ func processSpan(span *trace.Span, name, msg string) {
 		return
 	}
 	span.AddAttributes(trace.StringAttribute(tagProcess, name))
-	span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_time", name), strconv.FormatInt(time.Now().Unix(), 64)))
+	span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_time", name), fmt.Sprintf("%v", time.Now().Unix())))
 	if len(msg) > 0 {
 		span.AddAttributes(trace.StringAttribute(fmt.Sprintf("%v_msg", name), msg))
 	}
