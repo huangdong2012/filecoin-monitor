@@ -6,7 +6,6 @@ import (
 	"go.opencensus.io/trace"
 	"huangdong2012/filecoin-monitor/model"
 	"huangdong2012/filecoin-monitor/utils"
-	"strconv"
 	"strings"
 	"time"
 )
